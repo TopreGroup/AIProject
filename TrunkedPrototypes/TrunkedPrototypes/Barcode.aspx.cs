@@ -100,12 +100,13 @@ namespace TrunkedPrototypes
                 // Not a book found on Google's Book API
                 if (productDetails == null)
                 {
+                    continue;
                     //productDetails = GetProductDetails(currentBarcode);
 
                     //tc.Text = "Sold in Stores";
                 }
                 else
-                    tc.Text = "Other";
+                    tc.Text = "Other";                    
 
                 foreach (Dictionary<string, string> product in productDetails)
                 {
