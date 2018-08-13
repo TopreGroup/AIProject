@@ -11,7 +11,7 @@ namespace TrunkedPrototypes
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Server.MapPath("~/Content/") + "ServiceAccount.json");
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Server.MapPath("~/Content/") + "silver-charmer-212805-5aee4663fc58.json");
         }
 
         //public byte[] ImageToByteArray(System.Drawing.Image imageIn)
@@ -42,7 +42,7 @@ namespace TrunkedPrototypes
                 WebRequest request = WebRequest.Create(@"https://automl.googleapis.com/v1beta1/projects/silver-charmer-212805/locations/us-central1/models/ICN6385355982086874655:predict");
                 request.Method = "POST";
                 request.ContentType = "application/json"; 
-                request.Headers.Add("Authorization", "Bearer ya29.GqQB9wVHFFgf6Gy2j0CDmxex1nk1DZHdV_J1ltCxktmVrMmKcaIcbiAZ46hM3QaR5-bXe6XQS8hhcKE-6UuyeKaPtyFusxzk9z4_-6gKzBiPfWhyDd82VT6ob6G7kpHu9pQ28qua6YlCCA6SvBRiZBGg1jkLGqMt_oaqWlGSdfyaktODimKmQ5bPf8h5iBCQPBgaadj0mkfqcvryTeDjKQOXcAf-LjE");
+                request.Headers.Add("Authorization", "Bearer ya29.GqQB-AUoNqrss3X8NuZTrqYJ7BNHCDc_hyRVp1Z8IqscJdW5vmpG0Jtznh4csv7fZ4JWQ5-Lx_6iWzglHHQdu102cS21nJ0q925MQXRVUANHk7Qt7_TmBuks5K9ZTt2FT0dXreHVC3mTXeN-3of0xTm0dhxeSLlWpNN5394bVG7GkFr22arGBYrPZ35oJhBMHPFdxIQr4p6QUEOFlWa5EsdvxSiN7bI");
 
                 using (var streamWriter = new StreamWriter(request.GetRequestStream()))
                 {
