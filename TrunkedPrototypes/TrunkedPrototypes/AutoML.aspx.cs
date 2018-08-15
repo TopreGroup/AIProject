@@ -14,6 +14,8 @@ namespace TrunkedPrototypes
         private readonly string PROJECT_ID = "vision-poc-212402";
         private readonly string MODEL_ID = "ICN3388677669838382227";
 
+        protected bool resultsFound = false;
+
         protected void Page_Load(object sender, EventArgs e)
         {
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Server.MapPath("~/Content/") + "AutoMLServiceAccount.json");
@@ -21,6 +23,9 @@ namespace TrunkedPrototypes
 
         protected void RecognizeButton_Click(object sender, EventArgs e)
         {
+            tblResults.Visible = false;
+            resultsFound = false;
+
             if (ctrlFileUpload.HasFile)
             {
                 Byte[] imageBytes = ctrlFileUpload.FileBytes;
@@ -40,13 +45,14 @@ namespace TrunkedPrototypes
                     streamWriter.Write(jsonRequest);
                 }
 
-                WebResponse response = request.GetResponse();
-
                 string result = "";
 
-                using (var sr = new StreamReader(response.GetResponseStream()))
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 {
-                    result = sr.ReadToEnd();
+                    using (var sr = new StreamReader(response.GetResponseStream()))
+                    {
+                        result = sr.ReadToEnd();
+                    }
                 }
 
                 JObject jsonResultObj = JObject.Parse(result);
@@ -76,9 +82,7 @@ namespace TrunkedPrototypes
         }
 
         protected void FormatResults(JObject results)
-        {
-            bool resultsFound = false;
-
+        {            
             List<string> headings = new List<string>()
             {
                 "Label", "Confidence Score"
