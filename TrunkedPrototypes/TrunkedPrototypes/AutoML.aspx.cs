@@ -114,7 +114,7 @@ namespace TrunkedPrototypes
                 numResults = 0;
             }
 
-            lblResult.Text += "<br />Number of labels identified: " + numResults;
+            lblResult.Text = "<br />Number of labels identified: " + numResults;
 
             if (numResults > 0)
                 resultsFound = true;
