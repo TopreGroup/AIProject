@@ -10,7 +10,7 @@ namespace TrunkedPrototypes
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Server.MapPath("~/Content/") + "ServiceAccount.json");
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Server.MapPath("~/Content/") + "VisionAPIServiceAccount.json");
         }
 
         protected void RecognizeButton_Click(object sender, EventArgs e)
