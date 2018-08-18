@@ -2,10 +2,9 @@
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">	
 	<script>
-		function showLoadingGif()
-		{
+        function showLoadingGif() {
 			$("#imgLoading").show();
-		}
+        }
 	</script>
 
 	<div class="jumbotron">
@@ -23,6 +22,9 @@
 		</p>	
 
         <p><asp:Label ID="lblResult" runat="server" /></p>
-        <p><asp:Label ID="lblError" runat="server" /></p>
+
+		<br />
+
+        <asp:Table ID="tblResults" runat="server" GridLines="Both" Visible="false" />
     </div>
 </asp:Content>
