@@ -10,9 +10,9 @@ namespace TrunkedPrototypes
 {
     public partial class AutoML : System.Web.UI.Page
     {
-        private readonly string GCLOUD_ACCESS_TOKEN = "ya29.c.El_6BcX7taCzc3Md_hfFeI1Q7okq0MLgst38bytfhkvgnQdE_KjjVHzupe-0mVRjSnLPCGLsn5jJOm09QhEmmk9dbO_Hr-LweoP0e8nTa5NFUJy2QRuG2gUg_r3FsosrjQ";
+        private readonly string GCLOUD_ACCESS_TOKEN = "ya29.c.El_9BfhNmNlL1WOzR97drDKb1dzfaFE8ddtc1nuJ-jzhqh6z7tef3VXIqjzI6V5degYljkg1ppJjJ_kGBJT1zwId1AeHdEFu7a1ZRxTU2L22O36h0-BW7pU6rojl-lQ37A";
         private readonly string PROJECT_ID = "vision-poc-212402";
-        private readonly string MODEL_ID = "ICN3388677669838382227";
+        private readonly string MODEL_ID = "ICN584807738399318221";
 
         protected bool resultsFound = false;
 
@@ -28,6 +28,15 @@ namespace TrunkedPrototypes
 
             if (ctrlFileUpload.HasFile)
             {
+                string fullFileName = Path.GetFileName(ctrlFileUpload.FileName);
+
+                string fileExtension = fullFileName.Substring(fullFileName.IndexOf("."));
+                string fileName = Guid.NewGuid().ToString();
+
+                string path = Server.MapPath("~/UploadedImages/") + fileName + fileExtension;
+
+                ctrlFileUpload.SaveAs(path);
+
                 Byte[] imageBytes = ctrlFileUpload.FileBytes;
                 string base64ImageString = Convert.ToBase64String(imageBytes);                
                 
