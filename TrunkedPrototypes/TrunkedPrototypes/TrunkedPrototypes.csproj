@@ -212,6 +212,7 @@
     <Content Include="Content\Site.css" />
     <Content Include="AutoML.aspx" />
     <Content Include="Barcode.aspx" />
+    <Content Include="AzureVisionAPI.aspx" />
     <Content Include="GoogleOCR.aspx" />
     <Content Include="VisionAPI.aspx" />
     <Content Include="Default.aspx" />
@@ -231,6 +232,7 @@
     </Content>
     <Content Include="Content\VisionAPIServiceAccount.json" />
     <Content Include="Content\AutoMLServiceAccount.json" />
+    <Content Include="Content\AzureAccountRita.json" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -298,13 +300,6 @@
     </Compile>
     <Compile Include="Barcode.aspx.designer.cs">
       <DependentUpon>Barcode.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="GoogleOCR.aspx.cs">
-      <DependentUpon>GoogleOCR.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="GoogleOCR.aspx.designer.cs">
-      <DependentUpon>GoogleOCR.aspx</DependentUpon>
     </Compile>
     <Compile Include="VisionAPI.aspx.cs">
       <DependentUpon>VisionAPI.aspx</DependentUpon>
