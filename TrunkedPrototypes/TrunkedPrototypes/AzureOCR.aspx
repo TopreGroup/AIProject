@@ -23,8 +23,8 @@
 		</p>	
 
 		<br />
-        <h4>Language: </h4>
-        <asp:Label ID="lblLanguage" runat="server" />
+        <%--Language: --%>
+        <h4><asp:Label ID="lblLanguage" runat="server" /></h4>
 
 		<asp:Table ID="tblResults" runat="server" GridLines="Both" Visible="false" />
     </div>

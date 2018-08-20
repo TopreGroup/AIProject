@@ -79,32 +79,54 @@ namespace TrunkedPrototypes
 
         protected void PrintResults(JObject responseObject)
         {
-            lblLanguage.Text = responseObject["language"].ToString();
+            lblLanguage.Text = "Language: " + responseObject["language"].ToString();
 
+            List<string> wordsList = new List<string>();
+            string allText = "";
+
+            JArray regions = (JArray)responseObject["regions"];
+
+            for (int i = 0; i < regions.Count; i++)
+            {
+                JArray lines = (JArray)regions[i]["lines"];
+
+                for (int j = 0; j < lines.Count; j++)
+                {
+                    JArray words = (JArray)lines[j]["words"];
+
+                    for (int k = 0; k < words.Count; k++)
+                    {
+                        string currentWord = words[k]["text"].ToString();
+
+                        wordsList.Add(currentWord);
+                        allText += currentWord + " ";
+                    }
+                }
+            }
+
+            // Ideally this part is split up into a separate method but it's fine for a prototype
             TableRow row = new TableRow();
             TableCell cell = new TableCell();
 
-            cell.Controls.Add(new LiteralControl("Description"));
+            cell.Controls.Add(new LiteralControl(allText));
+            cell.CssClass = "tblCell";
             cell.CssClass = "tblCell heading";
-            row.Cells.Add(cell);
 
+            row.Cells.Add(cell);
             tblResults.Rows.Add(row);
 
-            JArray regionText = (JArray)responseObject["regions"];
-
-
-            for (int j = 0; j < regionText.Count; j++)
+            foreach (string word in wordsList)
             {
                 row = new TableRow();
                 cell = new TableCell();
-                cell.Controls.Add(new LiteralControl(regionText.ToString()));
+
+                cell.Controls.Add(new LiteralControl(word));
                 cell.CssClass = "tblCell";
 
                 row.Cells.Add(cell);
-
                 tblResults.Rows.Add(row);
             }
-
+            
             tblResults.Visible = true;
         }
     }
