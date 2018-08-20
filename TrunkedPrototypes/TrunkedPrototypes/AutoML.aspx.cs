@@ -10,7 +10,7 @@ namespace TrunkedPrototypes
 {
     public partial class AutoML : System.Web.UI.Page
     {
-        private readonly string GCLOUD_ACCESS_TOKEN = "ya29.c.El_9BfhNmNlL1WOzR97drDKb1dzfaFE8ddtc1nuJ-jzhqh6z7tef3VXIqjzI6V5degYljkg1ppJjJ_kGBJT1zwId1AeHdEFu7a1ZRxTU2L22O36h0-BW7pU6rojl-lQ37A";
+        private readonly string GCLOUD_ACCESS_TOKEN = "ya29.c.El_9BR1Erf_8kv5hfxIZm_qoGhN1LZhAg7nRfpg8Z55k7w9Rv0OeRdi8AWP4lgLFm_aSppIfmaTIHo7wSvnGMUU42iJaJm-MHP4L78V8McR_bs2_3VqpmETYS2rY_RSTbQ";
         private readonly string PROJECT_ID = "vision-poc-212402";
         private readonly string MODEL_ID = "ICN584807738399318221";
 
