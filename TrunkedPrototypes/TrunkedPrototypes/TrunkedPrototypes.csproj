@@ -280,6 +280,13 @@
       <DependentUpon>About.aspx</DependentUpon>
     </Compile>
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="AzureVisionAPI.aspx.cs">
+      <DependentUpon>AzureVisionAPI.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AzureVisionAPI.aspx.designer.cs">
+      <DependentUpon>AzureVisionAPI.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Contact.aspx.cs">
       <DependentUpon>Contact.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -300,6 +307,13 @@
     </Compile>
     <Compile Include="Barcode.aspx.designer.cs">
       <DependentUpon>Barcode.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GoogleOCR.aspx.cs">
+      <DependentUpon>GoogleOCR.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GoogleOCR.aspx.designer.cs">
+      <DependentUpon>GoogleOCR.aspx</DependentUpon>
     </Compile>
     <Compile Include="VisionAPI.aspx.cs">
       <DependentUpon>VisionAPI.aspx</DependentUpon>
