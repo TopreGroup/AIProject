@@ -44,14 +44,10 @@ namespace TrunkedPrototypes
             var client = ImageAnnotatorClient.Create();
             var image = Google.Cloud.Vision.V1.Image.FromFile(imagePath);
             var response = client.DetectText(image);
-            
-            foreach (var annotation in response)
-            {
-                if (annotation.Description != null)
-                    lblStatus.Text += "<br />" + annotation.Description;
-            }
 
             /**/
+            int counter = 0;
+
             foreach (var annotation in response)
             {
                 if (!String.IsNullOrEmpty(annotation.Description))
@@ -60,11 +56,17 @@ namespace TrunkedPrototypes
                     TableCell cell = new TableCell();
 
                     cell.Controls.Add(new LiteralControl(annotation.Description));
-                    cell.CssClass = "tblCell";
+
+                    if (counter == 0)
+                        cell.CssClass = "tblCell heading";
+                    else
+                        cell.CssClass = "tblCell";
 
                     row.Cells.Add(cell);
 
                     tblResults.Rows.Add(row);
+
+                    counter++;
                 }
             }
             //*/
