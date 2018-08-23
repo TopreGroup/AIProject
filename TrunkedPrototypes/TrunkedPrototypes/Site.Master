@@ -53,9 +53,9 @@
                         <li><a runat="server" href="~/VisionAPI.aspx">VisionAPI</a></li>
                         <li><a runat="server" href="~/AutoML.aspx">AutoML</a></li>
                         <li><a runat="server" href="~/Barcode.aspx">Barcodes</a></li>
-                        <li><a runat="server" href="~/AzureVisionAPI.aspx">Azure Vision API</a></li>
                         <li><a runat="server" href="~/GoogleOCR.aspx">GoogleOCR</a></li>
-                         <li><a runat="server" href="~/CustomVision.aspx">CustomVisionAPI</a></li>
+                        <li><a runat="server" href="~/AzureVisionAPI.aspx">Azure Vision API</a></li>
+                        <li><a runat="server" href="~/CustomVision.aspx">CustomVisionAPI</a></li>
                     </ul>
                 </div>
             </div>
