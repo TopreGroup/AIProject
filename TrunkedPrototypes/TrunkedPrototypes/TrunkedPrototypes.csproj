@@ -213,6 +213,7 @@
     <Content Include="AutoML.aspx" />
     <Content Include="Barcode.aspx" />
     <Content Include="AzureVisionAPI.aspx" />
+    <Content Include="CustomVision.aspx" />
     <Content Include="GoogleOCR.aspx" />
     <Content Include="VisionAPI.aspx" />
     <Content Include="Default.aspx" />
@@ -229,6 +230,7 @@
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Content\VisionAPIServiceAccount.json" />
     <Content Include="Content\AutoMLServiceAccount.json" />
@@ -307,6 +309,13 @@
     </Compile>
     <Compile Include="Barcode.aspx.designer.cs">
       <DependentUpon>Barcode.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CustomVision.aspx.cs">
+      <DependentUpon>CustomVision.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CustomVision.aspx.designer.cs">
+      <DependentUpon>CustomVision.aspx</DependentUpon>
     </Compile>
     <Compile Include="GoogleOCR.aspx.cs">
       <DependentUpon>GoogleOCR.aspx</DependentUpon>
