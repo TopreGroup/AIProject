@@ -530,7 +530,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        result.push(code.code);
 	    }
 
-        $("#lblResultBarcode").text(code);
         return code;        
 	};
 	

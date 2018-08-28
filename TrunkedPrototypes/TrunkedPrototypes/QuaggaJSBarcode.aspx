@@ -2,9 +2,12 @@
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">	
 	<script>
-		function showLoadingGif()
-		{
+		function showLoadingGif() {
 			$("#imgLoading").show();
+        }
+
+        function hideLoadingGif() {
+			$("#imgLoading").hide();
 		}
 	</script>
     <script src="/Scripts/quagga.min.js" type="text/javascript"></script>
@@ -23,11 +26,18 @@
                         .locator({patchSize: 'medium'})
                         .fromSource(file, {size: 800})
                         .toPromise()
-                        .then(function(result) {
-                            document.querySelector('input.isbn').value = result.codeResult.code;
+                        .then(function (result) {
+                            hideLoadingGif();
+                            $('#<%=lblResult.ClientID%>').html("Barcode found: " + result.codeResult.code);
+                            $('#<%=hdnResult.ClientID%>').val(result.codeResult.code);
+                            document.getElementById('<%=btnGetBookInfo.ClientID%>').style.visibility = 'visible';
+                            return false;  
                         })
-                        .catch(function() {
-                            document.querySelector('input.isbn').value = "Not Found";
+                        .catch(function () {
+                            hideLoadingGif();
+                            $('#<%=lblResult.ClientID%>').html("No barcode found");
+                            $('#<%=hdnResult.ClientID%>').val("No barcode found");
+                            return false;
                         })
                         .then(function() {
                             this.attachListeners();
@@ -35,19 +45,14 @@
                 },
                 attachListeners: function() {
                     var self = this,
-                        button = document.querySelector('.input-field input + .button.scan'),
+                        button = document.querySelector('.icon-barcode.button.scan.btn.btn-primary.btn-lg'),
                         fileInput = document.querySelector('.input-field input[type=file]');
-
-                    button.addEventListener("click", function onClick(e) {
-                        e.preventDefault();
-                        button.removeEventListener("click", onClick);
-                        document.querySelector('.input-field input[type=file]').click();
-                    });
 
                     fileInput.addEventListener("change", function onChange(e) {
                         e.preventDefault();
                         fileInput.removeEventListener("change", onChange);
                         if (e.target.files && e.target.files.length) {
+                            showLoadingGif();
                             self.decode(e.target.files[0]);
                         }
                     });
@@ -60,15 +65,24 @@
 	<div class="jumbotron">
         <h1>Barcodes</h1>
         <p class="lead">This uses QuaggaJS barcode decoder.<br />Choose an image with a barcode and then click the <strong>"Recognize Image"</strong> button.</p>
+
 		<form>
             <div class="input-field">
                 <input type="file" id="file" capture/>
-                <button type="button" class="icon-barcode button scan">Decode</button>
-                <label for="isbn_input">EAN:</label>
-                <input id="isbn_input" class="isbn" type="text" />
+                <br /><img id="imgLoading" src="Content/Images/Loading.gif" style="width:30px;display:none;"/>
             </div>
         </form>
-        <asp:Label ID="lblDecodedBarcode" runat="server" Visible="false" CssClass="hiddenLabel"/>
-        <label id="lblResultBarcode" />
+
+        <br />
+
+        <p><asp:Label ID="lblResult" runat="server" Visible="true"/></p>
+        <asp:HiddenField ID="hdnResult" runat="server" />
+
+        <%--Should try to get this working without the need of this button. So when we get the result, it automatically calls the method.--%>
+        <asp:Button ID="btnGetBookInfo" runat="server" CssClass="btn btn-primary btn-lg" OnClick="btnGetBookInfo_Click" OnClientClick="showLoadingGif()" Text="Get Book Info" style="visibility:hidden" />
+
+		<br />
+
+		<asp:Table ID="tblResults" runat="server" GridLines="Both" Visible="false" />
     </div>
 </asp:Content>

@@ -13,12 +13,39 @@ namespace TrunkedPrototypes {
     public partial class QuaggaJSBarcode {
         
         /// <summary>
-        /// lblDecodedBarcode control.
+        /// lblResult control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblDecodedBarcode;
+        protected global::System.Web.UI.WebControls.Label lblResult;
+        
+        /// <summary>
+        /// hdnResult control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hdnResult;
+        
+        /// <summary>
+        /// btnGetBookInfo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnGetBookInfo;
+        
+        /// <summary>
+        /// tblResults control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Table tblResults;
     }
 }
