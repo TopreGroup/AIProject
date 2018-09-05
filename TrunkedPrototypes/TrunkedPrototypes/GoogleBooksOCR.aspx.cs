@@ -18,6 +18,9 @@ namespace TrunkedPrototypes
         protected void Page_Load(object sender, EventArgs e)
         {
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Server.MapPath("~/Content/") + "VisionAPIServiceAccount.json");
+
+            if (!String.IsNullOrEmpty(Request.QueryString["isbn"]))
+                CreateResultsTable(GetBookDetails(Request.QueryString["isbn"]));
         }
 
         protected void RecognizeButton_Click(object sender, EventArgs e)
@@ -107,8 +110,13 @@ namespace TrunkedPrototypes
 
                 JArray authorArray = (JArray)jsonObj["items"][i]["volumeInfo"]["authors"];
 
-                foreach (JToken author in authorArray)
-                    authors += author.ToString() + "<br />";
+                if (authorArray != null)
+                {
+                    foreach (JToken author in authorArray)
+                        authors += author.ToString() + "<br />";
+                }
+                else
+                    authors = "Unknown";
 
                 bookDetails.Add("Author(s)", authors);
 
@@ -116,40 +124,27 @@ namespace TrunkedPrototypes
 
                 JArray industryIdentifiersArray = (JArray)jsonObj["items"][i]["volumeInfo"]["industryIdentifiers"];
 
-                foreach (JToken identifier in industryIdentifiersArray)
+                if (industryIdentifiersArray != null)
                 {
-                    if (identifier["type"].ToString().Equals("ISBN_13"))
+                    foreach (JToken identifier in industryIdentifiersArray)
                     {
-                        isbn = identifier["identifier"].ToString();
-                        break;
+                        if (identifier["type"].ToString().Equals("ISBN_13"))
+                        {
+                            isbn = identifier["identifier"].ToString();
+                            break;
+                        }
+
+                        if (identifier["type"].ToString().Equals("ISBN_10"))
+                        {
+                            isbn = identifier["identifier"].ToString();
+                            break;
+                        }
                     }
                 }
 
-                bookDetails.Add("ISBN", isbn);
-
-                bookDetails.Add("Publisher", jsonObj["items"][i]["volumeInfo"]["publisher"].ToString() + " (" + jsonObj["items"][i]["volumeInfo"]["publishedDate"].ToString() + ")");
+                bookDetails.Add("ISBN", String.IsNullOrEmpty(isbn) ? "Unknown" : isbn);                
 
                 bookDetails.Add("Thumbnail", jsonObj["items"][i]["volumeInfo"]["imageLinks"]["thumbnail"].ToString());
-
-                string subCategories = "";
-
-                JArray subCategoriesArray = (JArray)jsonObj["items"][i]["volumeInfo"]["categories"];
-
-                if (subCategoriesArray != null)
-                {
-                    foreach (JToken subCategory in subCategoriesArray)
-                        subCategories += subCategory.ToString() + ", ";
-
-                    subCategories = subCategories.Substring(0, subCategories.Length - 2);
-                }
-                else
-                    subCategories = "Unknown";
-
-                string other = "<strong>Sub-Categories:</strong> " + subCategories + "<br />";
-                other += "<strong>Pages:</strong> " + (jsonObj["items"][i]["volumeInfo"]["pageCount"] == null ? "Unknown" : jsonObj["items"][i]["volumeInfo"]["pageCount"].ToString()) + "<br />";
-                other += "<strong>Rating:</strong> " + (jsonObj["items"][i]["volumeInfo"]["averageRating"] == null ? "Unknown" : jsonObj["items"][i]["volumeInfo"]["averageRating"].ToString()) + "<br />";
-
-                bookDetails.Add("LastColumn", other);
 
                 bookDetailsList.Add(bookDetails);
             }
@@ -159,7 +154,7 @@ namespace TrunkedPrototypes
         {
             List<string> headings = new List<string>()
             {
-                "ISBN", "Thumbnail", "Title", "Author(s)"
+                "ISBN", "Cover", "Title", "Author(s)"
             };
 
             TableRow row = new TableRow();
@@ -200,12 +195,10 @@ namespace TrunkedPrototypes
 
                         btnSelectBook.CssClass = "btn btn-primary btn-lg";
                         btnSelectBook.Text = book["ISBN"];
-                        btnSelectBook.Click += (s, e) => 
-                        {
-                            Button button = s as Button;
+                        btnSelectBook.OnClientClick = "window.location = window.location + '?isbn=' + this.value;return false;";
 
-                            CreateResultsTable(button.Text);
-                        };
+                        if (book["ISBN"].Equals("Unknown"))
+                            btnSelectBook.Enabled = false;
 
                         cell.Controls.Add(btnSelectBook);
                     }
@@ -223,15 +216,88 @@ namespace TrunkedPrototypes
                 tblResults.Visible = true;
         }
 
-        protected void CreateResultsTable(string isbn)
+        protected List<Dictionary<string, string>> GetBookDetails(string isbn)
+        {
+            List<Dictionary<string, string>> bookDetailsList = new List<Dictionary<string, string>>();
+
+            string isbnLookupURI = String.Format(@"https://www.googleapis.com/books/v1/volumes?q=isbn:{0}", isbn);
+
+            WebRequest request = WebRequest.Create(isbnLookupURI);
+            request.Method = "GET";
+
+            WebResponse response = request.GetResponse();
+
+            string jsonString;
+            using (Stream stream = response.GetResponseStream())
+            {
+                StreamReader reader = new StreamReader(stream, System.Text.Encoding.UTF8);
+                jsonString = reader.ReadToEnd();
+            }
+
+            JObject jsonObj = JObject.Parse(jsonString);
+
+            if (jsonObj["totalItems"].ToString().Equals("0"))
+                return null;
+            else
+                resultsFound = true;
+
+            for (int i = 0; i < ((JArray)jsonObj["items"]).Count; i++)
+            {
+                Dictionary<string, string> bookDetails = new Dictionary<string, string>();
+
+                bookDetails.Add("BarcodeType", "ISBN");
+                bookDetails.Add("Category", "Book");
+                bookDetails.Add("Title", jsonObj["items"][i]["volumeInfo"]["title"].ToString());
+
+                string authors = "";
+
+                JArray authorArray = (JArray)jsonObj["items"][i]["volumeInfo"]["authors"];
+
+                if (authorArray != null)
+                {
+                    foreach (JToken author in authorArray)
+                        authors += author.ToString() + "<br />";
+                }
+                else
+                    authors = "Unknown";
+
+                bookDetails.Add("Author(s)", authors);
+
+                bookDetails.Add("Publisher", (jsonObj["items"][i]["volumeInfo"]["publisher"] == null ? "Unknown" : jsonObj["items"][i]["volumeInfo"]["publisher"].ToString()) + " (" + (jsonObj["items"][i]["volumeInfo"]["publishedDate"] == null ? "Unknown" : jsonObj["items"][i]["volumeInfo"]["publishedDate"].ToString()) + ")");
+
+                string subCategories = "";
+
+                JArray subCategoriesArray = (JArray)jsonObj["items"][i]["volumeInfo"]["categories"];
+
+                if (subCategoriesArray != null)
+                {
+                    foreach (JToken subCategory in subCategoriesArray)
+                        subCategories += subCategory.ToString() + ", ";
+
+                    subCategories = subCategories.Substring(0, subCategories.Length - 2);
+                }
+                else
+                    subCategories = "Unknown";
+
+                string other = "<strong>Sub-Categories:</strong> " + subCategories + "<br />";
+                other += "<strong>Pages:</strong> " + (jsonObj["items"][i]["volumeInfo"]["pageCount"] == null ? "Unknown" : jsonObj["items"][i]["volumeInfo"]["pageCount"].ToString()) + "<br />";
+                other += "<strong>Rating:</strong> " + (jsonObj["items"][i]["volumeInfo"]["averageRating"] == null ? "Unknown" : jsonObj["items"][i]["volumeInfo"]["averageRating"].ToString()) + "<br />";
+
+                bookDetails.Add("LastColumn", other);
+
+                bookDetailsList.Add(bookDetails);
+            }
+
+            return bookDetailsList;
+        }
+
+        protected void CreateResultsTable(List<Dictionary<string, string>> results)
         {
             lblResults.Visible = false;
 
-            tblResults = new Table();
-
             List<string> headings = new List<string>()
             {
-                "ISBN", "Category", "Title", "Author(s)", "Publisher", "LastColumn"
+                "Barcode Number", "Barcode Type", "Category", "Title", "Author(s)", "Publisher", "LastColumn"
             };
 
             TableRow row = new TableRow();
@@ -252,11 +318,8 @@ namespace TrunkedPrototypes
 
             tblResults.Rows.Add(row);
 
-            foreach (Dictionary<string, string> book in bookDetailsList)
+            foreach (Dictionary<string, string> book in results)
             {
-                if (!book["ISBN"].Equals(isbn))
-                    continue;
-
                 row = new TableRow();
 
                 for (int i = 1; i <= headings.Count; i++)
@@ -266,16 +329,18 @@ namespace TrunkedPrototypes
                     string cellValue = "";
 
                     if (i == 1)
-                        cellValue = isbn;
+                        cellValue = Request.QueryString["isbn"];
                     else if (i == 2)
-                        cellValue = book["Category"];
+                        cellValue = book["BarcodeType"];
                     else if (i == 3)
-                        cellValue = book["Title"];
+                        cellValue = book["Category"];
                     else if (i == 4)
-                        cellValue = book["Author(s)"];
+                        cellValue = book["Title"];
                     else if (i == 5)
-                        cellValue = book["Publisher"];
+                        cellValue = book["Author(s)"];
                     else if (i == 6)
+                        cellValue = book["Publisher"];
+                    else if (i == 7)
                         cellValue = book["LastColumn"];
 
                     cell.Controls.Add(new LiteralControl(cellValue));

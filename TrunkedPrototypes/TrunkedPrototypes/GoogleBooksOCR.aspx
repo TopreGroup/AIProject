@@ -5,7 +5,7 @@
 		function showLoadingGif()
 		{
 			$("#imgLoading").show();
-		}
+        }
 	</script>
 
 	<div class="jumbotron">
