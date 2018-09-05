@@ -1,4 +1,4 @@
-﻿<%@ Page Title="GoogleBooks OCR" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="GoogleBooksOCR.aspx.cs" Inherits="TrunkedPrototypes.GoogleBooksOCR" %>
+﻿<%@ Page Title="Recognize And Prompt" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="RecognizeAndPrompt.aspx.cs" Inherits="TrunkedPrototypes.RecognizeAndPrompt" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">	
 	<script>
@@ -9,8 +9,8 @@
 	</script>
 
 	<div class="jumbotron">
-        <h1>Google Books OCR</h1>
-        <p class="lead">This uses Google OCR and the Google Books API.<br />Choose an image and then click the <strong>"Recognize Image"</strong> button.</p>
+        <h1>Recognize And Prompt</h1>
+        <p class="lead">Choose an image and then click the <strong>"Recognize Image"</strong> button.</p>
 		<p><asp:FileUpload ID="ctrlFileUpload" runat="server" /></p>
 
 		<br />

@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Google Books OCR AzureVision" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="GoogleBooksOCRAzureVision.aspx.cs" Inherits="TrunkedPrototypes.GoogleBooksOCRAzureVision" %>
+﻿<%@ Page Title="Recognize" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Recognize.aspx.cs" Inherits="TrunkedPrototypes.Recognize" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">	
 	<script>
@@ -9,8 +9,8 @@
 	</script>
 
 	<div class="jumbotron">
-        <h1>Google Books OCR AzureVision</h1>
-        <p class="lead">This uses Google OCR, the Google Books API and Azure CustomVision.<br />Choose an image and then click the <strong>"Recognize Image"</strong> button.</p>
+        <h1>Recognize</h1>
+        <p class="lead">Choose an image and then click the <strong>"Recognize Image"</strong> button.</p>
 		<p><asp:FileUpload ID="ctrlFileUpload" runat="server" /></p>
 
 		<br />

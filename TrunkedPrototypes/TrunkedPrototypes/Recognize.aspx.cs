@@ -14,7 +14,7 @@ using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction;
 
 namespace TrunkedPrototypes
 {
-    public partial class GoogleBooksOCRAzureVision : System.Web.UI.Page
+    public partial class Recognize : System.Web.UI.Page
     {
         protected string trainingKey = "5577626c64a7499b823f8da3b9a4f1ac";
         protected string predictionKey = "eac5e5ce95d649f6806f6d1b464798c9";

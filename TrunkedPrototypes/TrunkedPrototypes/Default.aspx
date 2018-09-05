@@ -8,8 +8,8 @@
                 <li><a runat="server" href="~/VisionAPI.aspx">GoogleVisionAPI</a></li>
                 <li><a runat="server" href="~/AutoML.aspx">GoogleCustom</a></li>
                 <li><a runat="server" href="~/GoogleOCR.aspx">GoogleOCR</a></li>
-                <li><a runat="server" href="~/GoogleBooksOCR.aspx">GoogleBooksOCR</a></li>
-                <li><a runat="server" href="~/GoogleBooksOCRAzureVision.aspx">GoogleBooksOCRAzureVision</a></li>
+                <li><a runat="server" href="~/RecognizeAndPrompt.aspx">Recognize And Prompt</a></li>
+                <li><a runat="server" href="~/Recognize.aspx">Recognize</a></li>
                 <li><a runat="server" href="~/Barcode.aspx">Barcodes</a></li>
                 <li><a runat="server" href="~/AzureVisionAPI.aspx">AzureVisionAPI</a></li>
                 <li><a runat="server" href="~/CustomVision.aspx">AzureCustom</a></li>

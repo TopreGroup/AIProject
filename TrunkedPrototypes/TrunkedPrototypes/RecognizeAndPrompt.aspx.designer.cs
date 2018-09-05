@@ -10,7 +10,7 @@
 namespace TrunkedPrototypes {
     
     
-    public partial class GoogleBooksOCR {
+    public partial class RecognizeAndPrompt {
         
         /// <summary>
         /// ctrlFileUpload control.

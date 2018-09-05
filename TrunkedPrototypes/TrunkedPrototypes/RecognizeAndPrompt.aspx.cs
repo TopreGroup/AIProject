@@ -9,7 +9,7 @@ using Google.Cloud.Vision.V1;
 
 namespace TrunkedPrototypes
 {
-    public partial class GoogleBooksOCR : System.Web.UI.Page
+    public partial class RecognizeAndPrompt : System.Web.UI.Page
     {
         protected string recognizedText = "";
         protected bool resultsFound;

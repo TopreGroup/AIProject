@@ -234,8 +234,8 @@
     <Content Include="Barcode.aspx" />
     <Content Include="AzureVisionAPI.aspx" />
     <Content Include="CustomVision.aspx" />
-    <Content Include="GoogleBooksOCRAzureVision.aspx" />
-    <Content Include="GoogleBooksOCR.aspx" />
+    <Content Include="Recognize.aspx" />
+    <Content Include="RecognizeAndPrompt.aspx" />
     <Content Include="GoogleOCR.aspx" />
     <Content Include="VisionAPI.aspx" />
     <Content Include="Default.aspx" />
@@ -346,19 +346,19 @@
     <Compile Include="CustomVision.aspx.designer.cs">
       <DependentUpon>CustomVision.aspx</DependentUpon>
     </Compile>
-    <Compile Include="GoogleBooksOCRAzureVision.aspx.cs">
-      <DependentUpon>GoogleBooksOCRAzureVision.aspx</DependentUpon>
+    <Compile Include="Recognize.aspx.cs">
+      <DependentUpon>Recognize.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="GoogleBooksOCRAzureVision.aspx.designer.cs">
-      <DependentUpon>GoogleBooksOCRAzureVision.aspx</DependentUpon>
+    <Compile Include="Recognize.aspx.designer.cs">
+      <DependentUpon>Recognize.aspx</DependentUpon>
     </Compile>
-    <Compile Include="GoogleBooksOCR.aspx.cs">
-      <DependentUpon>GoogleBooksOCR.aspx</DependentUpon>
+    <Compile Include="RecognizeAndPrompt.aspx.cs">
+      <DependentUpon>RecognizeAndPrompt.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="GoogleBooksOCR.aspx.designer.cs">
-      <DependentUpon>GoogleBooksOCR.aspx</DependentUpon>
+    <Compile Include="RecognizeAndPrompt.aspx.designer.cs">
+      <DependentUpon>RecognizeAndPrompt.aspx</DependentUpon>
     </Compile>
     <Compile Include="GoogleOCR.aspx.cs">
       <DependentUpon>GoogleOCR.aspx</DependentUpon>
