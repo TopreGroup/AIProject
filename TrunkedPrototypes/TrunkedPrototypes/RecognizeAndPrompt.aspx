@@ -2,8 +2,7 @@
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">	
 	<script>
-		function showLoadingGif()
-		{
+		function showLoadingGif() {
 			$("#imgLoading").show();
         }
 	</script>

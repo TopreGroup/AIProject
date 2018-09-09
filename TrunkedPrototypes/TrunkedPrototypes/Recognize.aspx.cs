@@ -22,6 +22,8 @@ namespace TrunkedPrototypes
 
         protected TrainingApi trainingApi;
 
+        protected int minImagesPerTag = 5;
+
         protected string recognizedText = "";
         protected bool resultsFound;
         protected List<Dictionary<string, string>> bookDetailsList;
@@ -58,11 +60,22 @@ namespace TrunkedPrototypes
 
                 if (!imageText.Equals("NO TEXT FOUND"))
                 {
-                    GetBookDetailsFromText(imageText);
+                    try
+                    { 
+                        GetBookDetailsFromText(imageText);
 
-                    CreateTagsAndTrain(bookDetailsList);
+                        CreateTagsAndTrain(bookDetailsList);
 
-                    MakePrediction(path);
+                        MakePrediction(path);
+                    }
+                    catch (Microsoft.Rest.HttpOperationException ex)
+                    {
+                        lblResults.Text = "ERROR: " + ex.Message + "<br />" + ex.Response.Content;
+                    }
+                    catch (Exception ex)
+                    {
+                        lblResults.Text = ex + "<br />" + ex.Message + "<br />" + ex.InnerException;
+                    }
                 }
                 else
                     lblResults.Text = imageText;
@@ -177,7 +190,7 @@ namespace TrunkedPrototypes
         {
             foreach (Dictionary<string, string> book in bookDetailsList)
             {
-                string newTag = book["Title"] + "|" + book["Author(s)"];
+                string newTag = book["ISBN"] + "|" + book["Title"] + "|" + book["Author(s)"];
 
                 var tags = trainingApi.GetTags(projectID);
                 bool tagExists = false;
@@ -198,13 +211,15 @@ namespace TrunkedPrototypes
                     bookTag = trainingApi.CreateTag(projectID, newTag);
                 }
 
-                WebRequest request = WebRequest.Create(book["Thumbnail"]);
-                WebResponse response = request.GetResponse();
-                Stream responseStream = response.GetResponseStream();
-
-                using (var stream = responseStream)
+                for (int i = 0; i < minImagesPerTag; i++)
                 {
-                    trainingApi.CreateImagesFromData(projectID, stream, new List<string>() { bookTag.Id.ToString() });
+                    WebRequest request = WebRequest.Create(book["Thumbnail"]);
+                    WebResponse response = request.GetResponse();
+
+                    using (var stream = response.GetResponseStream())
+                    {
+                        trainingApi.CreateImagesFromData(projectID, stream, new List<string>() { bookTag.Id.ToString() });
+                    }
                 }
             }
 
@@ -218,7 +233,7 @@ namespace TrunkedPrototypes
             }
 
             iteration.IsDefault = true;
-            trainingApi.UpdateIteration(projectID, iteration.Id, iteration);
+            trainingApi.UpdateIteration(projectID, iteration.Id, iteration);            
         }
 
         protected void MakePrediction(string predictionImagePath)
@@ -233,14 +248,9 @@ namespace TrunkedPrototypes
         {
             lblResults.Visible = false;
 
-            //List<string> headings = new List<string>()
-            //{
-            //    "ISBN", "Category", "Title", "Author(s)", "Publisher", "LastColumn"
-            //};
-
             List<string> headings = new List<string>()
             {
-                "Title", "Author(s)", "Probability"
+                "ISBN", "Title", "Author(s)", "Probability"
             };
 
             TableRow row = new TableRow();
@@ -260,8 +270,9 @@ namespace TrunkedPrototypes
 
             foreach (var prediction in result.Predictions)
             {
-                string title = prediction.TagName.Split('|')[0];
-                string authors = prediction.TagName.Split('|')[1];
+                string isbn = prediction.TagName.Split('|')[0];
+                string title = prediction.TagName.Split('|')[1];
+                string authors = prediction.TagName.Split('|')[2];
 
                 row = new TableRow();
 

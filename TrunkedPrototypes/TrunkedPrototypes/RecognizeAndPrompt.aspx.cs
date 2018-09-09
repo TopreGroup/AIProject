@@ -15,6 +15,10 @@ namespace TrunkedPrototypes
         protected bool resultsFound;
         protected List<Dictionary<string, string>> bookDetailsList;
 
+        // The max number allowed by the API is 40 for some reason. 
+        // Need to figure out what to do if the book doesn't get returned.
+        protected int maxResults = 40;
+
         protected void Page_Load(object sender, EventArgs e)
         {
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Server.MapPath("~/Content/") + "VisionAPIServiceAccount.json");
@@ -49,7 +53,8 @@ namespace TrunkedPrototypes
                 {
                     GetBookDetailsFromText(imageText);
 
-                    FormatBookResultsForSelection(bookDetailsList);
+                    if (resultsFound)
+                        FormatBookResultsForSelection(bookDetailsList);
                 }
                 else
                     lblResults.Text = imageText;
@@ -77,7 +82,7 @@ namespace TrunkedPrototypes
         {
             bookDetailsList = new List<Dictionary<string, string>>();
 
-            string uri = String.Format("https://www.googleapis.com/books/v1/volumes?q={0}", bookText);
+            string uri = String.Format("https://www.googleapis.com/books/v1/volumes?q={0}&maxResults={1}", bookText, maxResults);
 
             WebRequest request = WebRequest.Create(uri);
             request.Method = "GET";
@@ -100,53 +105,64 @@ namespace TrunkedPrototypes
             else
                 resultsFound = true;
 
-            for (int i = 0; i < ((JArray)jsonObj["items"]).Count; i++)
+            if (resultsFound)
             {
-                Dictionary<string, string> bookDetails = new Dictionary<string, string>();
-
-                bookDetails.Add("Title", jsonObj["items"][i]["volumeInfo"]["title"].ToString());
-
-                string authors = "";
-
-                JArray authorArray = (JArray)jsonObj["items"][i]["volumeInfo"]["authors"];
-
-                if (authorArray != null)
+                for (int i = 0; i < ((JArray)jsonObj["items"]).Count; i++)
                 {
-                    foreach (JToken author in authorArray)
-                        authors += author.ToString() + "<br />";
-                }
-                else
-                    authors = "Unknown";
+                    Dictionary<string, string> bookDetails = new Dictionary<string, string>();
 
-                bookDetails.Add("Author(s)", authors);
+                    bookDetails.Add("Title", jsonObj["items"][i]["volumeInfo"]["title"].ToString());
 
-                string isbn = "";
+                    string authors = "";
 
-                JArray industryIdentifiersArray = (JArray)jsonObj["items"][i]["volumeInfo"]["industryIdentifiers"];
+                    JArray authorArray = (JArray)jsonObj["items"][i]["volumeInfo"]["authors"];
 
-                if (industryIdentifiersArray != null)
-                {
-                    foreach (JToken identifier in industryIdentifiersArray)
+                    if (authorArray != null)
                     {
-                        if (identifier["type"].ToString().Equals("ISBN_13"))
-                        {
-                            isbn = identifier["identifier"].ToString();
-                            break;
-                        }
+                        foreach (JToken author in authorArray)
+                            authors += author.ToString() + "<br />";
+                    }
+                    else
+                        authors = "Unknown";
 
-                        if (identifier["type"].ToString().Equals("ISBN_10"))
+                    bookDetails.Add("Author(s)", authors);
+
+                    string isbn = "";
+
+                    JArray industryIdentifiersArray = (JArray)jsonObj["items"][i]["volumeInfo"]["industryIdentifiers"];
+
+                    if (industryIdentifiersArray != null)
+                    {
+                        foreach (JToken identifier in industryIdentifiersArray)
                         {
-                            isbn = identifier["identifier"].ToString();
-                            break;
+                            if (identifier["type"].ToString().Equals("ISBN_13"))
+                            {
+                                isbn = identifier["identifier"].ToString();
+                                break;
+                            }
+
+                            if (identifier["type"].ToString().Equals("ISBN_10"))
+                            {
+                                isbn = identifier["identifier"].ToString();
+                                break;
+                            }
                         }
                     }
+
+                    bookDetails.Add("ISBN", String.IsNullOrEmpty(isbn) ? "Unknown" : isbn);
+
+                    string thumbnailURI = "No thumbnail found";
+
+                    if (jsonObj["items"][i]["volumeInfo"]["imageLinks"] != null)
+                    {
+                        if (jsonObj["items"][i]["volumeInfo"]["imageLinks"]["thumbnail"] != null)
+                            thumbnailURI = jsonObj["items"][i]["volumeInfo"]["imageLinks"]["thumbnail"].ToString();
+                    }
+
+                    bookDetails.Add("Thumbnail", thumbnailURI);
+
+                    bookDetailsList.Add(bookDetails);
                 }
-
-                bookDetails.Add("ISBN", String.IsNullOrEmpty(isbn) ? "Unknown" : isbn);                
-
-                bookDetails.Add("Thumbnail", jsonObj["items"][i]["volumeInfo"]["imageLinks"]["thumbnail"].ToString());
-
-                bookDetailsList.Add(bookDetails);
             }
         }
 
@@ -183,7 +199,7 @@ namespace TrunkedPrototypes
                     string cellValue = "";
 
                     if (i == 1)
-                        cellValue = "<img src=\"" + book["Thumbnail"] + "\" />";
+                        cellValue = (book["Thumbnail"].Equals("No thumbnail found") ? book["Thumbnail"] : "<img src=\"" + book["Thumbnail"] + "\" />");
                     else if (i == 2)
                         cellValue = book["Title"];
                     else if (i == 3)
