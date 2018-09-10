@@ -205,24 +205,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="About.aspx" />
-    <Content Include="AzureOCR.aspx" />
     <Content Include="QuaggaJSBarcode.aspx" />
-    <Content Include="Contact.aspx" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\Images\Loading.gif" />
     <Content Include="Content\Site.css" />
-    <Content Include="AutoML.aspx" />
-    <Content Include="Barcode.aspx" />
-    <Content Include="AzureVisionAPI.aspx" />
     <Content Include="CustomVision.aspx" />
     <Content Include="GoogleOCR.aspx" />
     <Content Include="Scripts\quagga.js" />
     <Content Include="Scripts\quagga.min.js" />
-    <Content Include="VisionAPI.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="favicon.ico" />
     <Content Include="Scripts\fonts\glyphicons-halflings-regular.svg" />
@@ -281,55 +274,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
-    <Compile Include="About.aspx.cs">
-      <DependentUpon>About.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="About.aspx.designer.cs">
-      <DependentUpon>About.aspx</DependentUpon>
-    </Compile>
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="AzureOCR.aspx.cs">
-      <DependentUpon>AzureOCR.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="AzureOCR.aspx.designer.cs">
-      <DependentUpon>AzureOCR.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="AzureVisionAPI.aspx.cs">
-      <DependentUpon>AzureVisionAPI.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="AzureVisionAPI.aspx.designer.cs">
-      <DependentUpon>AzureVisionAPI.aspx</DependentUpon>
-    </Compile>
     <Compile Include="QuaggaJSBarcode.aspx.cs">
       <DependentUpon>QuaggaJSBarcode.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="QuaggaJSBarcode.aspx.designer.cs">
       <DependentUpon>QuaggaJSBarcode.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Contact.aspx.cs">
-      <DependentUpon>Contact.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Contact.aspx.designer.cs">
-      <DependentUpon>Contact.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="AutoML.aspx.cs">
-      <DependentUpon>AutoML.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="AutoML.aspx.designer.cs">
-      <DependentUpon>AutoML.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Barcode.aspx.cs">
-      <DependentUpon>Barcode.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Barcode.aspx.designer.cs">
-      <DependentUpon>Barcode.aspx</DependentUpon>
     </Compile>
     <Compile Include="CustomVision.aspx.cs">
       <DependentUpon>CustomVision.aspx</DependentUpon>
@@ -344,13 +295,6 @@
     </Compile>
     <Compile Include="GoogleOCR.aspx.designer.cs">
       <DependentUpon>GoogleOCR.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="VisionAPI.aspx.cs">
-      <DependentUpon>VisionAPI.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="VisionAPI.aspx.designer.cs">
-      <DependentUpon>VisionAPI.aspx</DependentUpon>
     </Compile>
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
