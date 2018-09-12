@@ -1,4 +1,4 @@
-﻿<%@ Page Title="QuaggaJS Barcode" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="QuaggaJSBarcode.aspx.cs" Inherits="Trunked.QuaggaJSBarcode" %>
+﻿<%@ Page Title="Barcode" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="QuaggaJSBarcode.aspx.cs" Inherits="Trunked.QuaggaJSBarcode" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">	
 	<script>
