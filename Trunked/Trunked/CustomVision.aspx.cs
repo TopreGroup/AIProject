@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training; // -Version 0.12.0-preview
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction; // -Version 0.10.0-preview
 
-namespace TrunkedPrototypes
+namespace Trunked
 {
     public partial class CustomVision : Page
     {

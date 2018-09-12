@@ -1,4 +1,4 @@
-﻿<%@ Page Title="QuaggaJS Barcode" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="QuaggaJSBarcode.aspx.cs" Inherits="TrunkedPrototypes.QuaggaJSBarcode" %>
+﻿<%@ Page Title="QuaggaJS Barcode" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="QuaggaJSBarcode.aspx.cs" Inherits="Trunked.QuaggaJSBarcode" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">	
 	<script>
@@ -27,6 +27,7 @@
                         .fromSource(file, {size: 800})
                         .toPromise()
                         .then(function (result) {
+                            // This is the function that gets called after the barcode has been decoded
                             hideLoadingGif();
                             $('#<%=lblResult.ClientID%>').html("Barcode found: " + result.codeResult.code);
                             $('#<%=hdnResult.ClientID%>').val(result.codeResult.code);
@@ -34,6 +35,7 @@
                             return false;  
                         })
                         .catch(function () {
+                            // Handle when no barcode is found
                             hideLoadingGif();
                             $('#<%=lblResult.ClientID%>').html("No barcode found");
                             $('#<%=hdnResult.ClientID%>').val("No barcode found");
@@ -48,6 +50,7 @@
                         button = document.querySelector('.icon-barcode.button.scan.btn.btn-primary.btn-lg'),
                         fileInput = document.querySelector('.input-field input[type=file]');
 
+                    // Adds a listener to trigger the deocde function when an image has been selected
                     fileInput.addEventListener("change", function onChange(e) {
                         e.preventDefault();
                         fileInput.removeEventListener("change", onChange);
@@ -64,12 +67,12 @@
 
 	<div class="jumbotron">
         <h1>Barcodes</h1>
-        <p class="lead">This uses QuaggaJS barcode decoder.<br />Choose an image with a barcode and then click the <strong>"Recognize Image"</strong> button.</p>
+        <p class="lead">Select an image of a barcode to decode:</p>
 
 		<form>
             <div class="input-field">
-                <input type="file" id="file" capture/>
-                <br /><img id="imgLoading" src="Content/Images/Loading.gif" style="width:30px;display:none;"/>
+                <input type="file" id="file" capture/><br />
+                <img id="imgLoading" src="Content/Images/Loading.gif" style="width:30px;display:none;"/>
             </div>
         </form>
 

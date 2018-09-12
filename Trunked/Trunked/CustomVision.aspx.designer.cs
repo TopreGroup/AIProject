@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TrunkedPrototypes {
+namespace Trunked {
     
     
     public partial class CustomVision {

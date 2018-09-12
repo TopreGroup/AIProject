@@ -1,4 +1,4 @@
-﻿<%@ Page Title="GoogleOCR" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="GoogleOCR.aspx.cs" Inherits="TrunkedPrototypes.GoogleOCR" %>
+﻿<%@ Page Title="GoogleOCR" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="GoogleOCR.aspx.cs" Inherits="Trunked.GoogleOCR" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">	
 	<script>

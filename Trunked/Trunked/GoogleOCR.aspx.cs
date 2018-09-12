@@ -4,7 +4,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using Google.Cloud.Vision.V1;
 
-namespace TrunkedPrototypes
+namespace Trunked
 {
     public partial class GoogleOCR : System.Web.UI.Page
     {

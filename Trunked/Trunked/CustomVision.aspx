@@ -1,4 +1,4 @@
-﻿<%@ Page Title="CustomVision" Language="C#"  MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="CustomVision.aspx.cs" Inherits="TrunkedPrototypes.CustomVision" %>
+﻿<%@ Page Title="CustomVision" Language="C#"  MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="CustomVision.aspx.cs" Inherits="Trunked.CustomVision" %>
 
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">	
