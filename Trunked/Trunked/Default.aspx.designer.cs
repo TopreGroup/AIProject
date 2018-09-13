@@ -22,15 +22,6 @@ namespace Trunked {
         protected global::System.Web.UI.WebControls.FileUpload ctrlFileUpload;
         
         /// <summary>
-        /// lblStatus control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblStatus;
-        
-        /// <summary>
         /// btnRecognize control.
         /// </summary>
         /// <remarks>
@@ -40,21 +31,48 @@ namespace Trunked {
         protected global::System.Web.UI.WebControls.Button btnRecognize;
         
         /// <summary>
-        /// lblResults control.
+        /// lblStatus control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblResults;
+        protected global::System.Web.UI.WebControls.Label lblStatus;
         
         /// <summary>
-        /// tblResults control.
+        /// tblObjectResults control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Table tblResults;
+        protected global::System.Web.UI.WebControls.Table tblObjectResults;
+        
+        /// <summary>
+        /// cllItemScanned control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableCell cllItemScanned;
+        
+        /// <summary>
+        /// cllConfidence control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableCell cllConfidence;
+        
+        /// <summary>
+        /// btnConfirm control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnConfirm;
     }
 }

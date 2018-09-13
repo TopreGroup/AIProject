@@ -17,9 +17,11 @@ namespace Trunked
 
     public class Result
     {
-        public ResultType Type;
-        public string Name;
-        public string Probability;
+        public ResultType Type { get; set; }
+
+        public string Name { get; set; }
+
+        public string Probability { get; set; }
     }
     
     public partial class _Default : Page
@@ -29,8 +31,6 @@ namespace Trunked
         protected Guid projectID = new Guid(ConfigurationManager.AppSettings["CustomVisionProjectID"]);
 
         protected TrainingApi trainingApi;
-
-        protected int minImagesPerTag = 5;
 
         protected string recognizedText = "";
         protected bool resultsFound;
@@ -46,6 +46,8 @@ namespace Trunked
 
         protected void RecognizeButton_Click(object sender, EventArgs e)
         {
+            tblObjectResults.Visible = false;
+
             if (ctrlFileUpload.HasFile)
             {
                 string path = "";
@@ -68,44 +70,51 @@ namespace Trunked
 
                 try
                 {
-                    result = DetermineObjectType(path);
+                    result = MakePrediction(path);
                 }
                 catch (Microsoft.Rest.HttpOperationException ex)
                 {
-                    lblResults.Text = "ERROR: " + ex.Message + "<br />" + ex.Response.Content;
+                    lblStatus.Text = "ERROR: " + ex.Message + "<br />" + ex.Response.Content;
                 }
                 catch (Exception ex)
                 {
-                    lblResults.Text = ex + "<br />" + ex.Message + "<br />" + ex.InnerException;
+                    lblStatus.Text = ex + "<br />" + ex.Message + "<br />" + ex.InnerException;
                 }
 
                 if (result.Type == ResultType.Barcode)
                 {
                     // Do barcode stuff
                     
-                    // Just ocurred to me that since the QuaggaJS is javascript, we can't really use it how we would like
+                    // Just occurred to me that since the QuaggaJS is javascript, we can't really use it how we would like
                     // from the server-side. Which sucks...
                 }
                 else if (result.Type == ResultType.Other)
                 {
-                    // Do custom vision stuff
+                    cllItemScanned.Text = result.Name;
+                    cllConfidence.Text = result.Probability;
+
+                    tblObjectResults.Visible = true;
                 }
+
+                File.Delete(path);
             }
 
             ctrlFileUpload.Dispose();
         }
 
-        protected Result DetermineObjectType(string predictionImagePath)
+        protected Result MakePrediction(string predictionImagePath)
         {
             PredictionEndpoint endpoint = new PredictionEndpoint() { ApiKey = predictionKey };
             MemoryStream predictionImage = new MemoryStream(File.ReadAllBytes(predictionImagePath));
 
             Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models.ImagePrediction predictionResult = endpoint.PredictImage(projectID, predictionImage);
 
-            Result result = new Result();
-
-            result.Name = predictionResult.Predictions[0].TagName;
-            result.Probability = predictionResult.Predictions[0].Probability.ToString();
+            Result result = new Result
+            {
+                // First result in list is highest probability
+                Name = predictionResult.Predictions[0].TagName,
+                Probability = predictionResult.Predictions[0].Probability.ToString()
+            };
 
             if (result.Name.Equals("Barcode"))
                 result.Type = ResultType.Barcode;
