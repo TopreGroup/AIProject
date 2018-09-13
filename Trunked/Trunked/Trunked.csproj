@@ -296,6 +296,7 @@
     <Compile Include="CustomVision.aspx.designer.cs">
       <DependentUpon>CustomVision.aspx</DependentUpon>
     </Compile>
+    <Compile Include="DBConnection.cs" />
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
