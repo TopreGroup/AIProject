@@ -9,27 +9,13 @@ using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction; // -Vers
 
 namespace Trunked
 {
-    public enum ResultType
-    {
-        Barcode,
-        Other
-    }
-
-    public class Result
-    {
-        public ResultType Type { get; set; }
-
-        public string Name { get; set; }
-
-        public string Probability { get; set; }
-    }
-    
     public partial class _Default : Page
     {
         protected string trainingKey = ConfigurationManager.AppSettings["CustomVisionTrainingKey"];
         protected string predictionKey = ConfigurationManager.AppSettings["CustomVisionPredictionKey"];
         protected Guid projectID = new Guid(ConfigurationManager.AppSettings["CustomVisionProjectID"]);
 
+        GoogleBooksAPI googleBooksAPI = new GoogleBooksAPI();
         protected TrainingApi trainingApi;
 
         protected string recognizedText = "";
@@ -38,7 +24,10 @@ namespace Trunked
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Server.MapPath("~/Content/") + "VisionAPIServiceAccount.json");
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Server.MapPath("~/Content/") + "GoogleServiceAccount.json");
+
+            if (!String.IsNullOrEmpty(Request.QueryString["isbn"]))
+                googleBooksAPI.CreateResultsTable(googleBooksAPI.GetBookDetailsFromISBN(Request.QueryString["isbn"]), tblResults);
 
             trainingApi = new TrainingApi() { ApiKey = trainingKey };
             trainingApi.HttpClient.Timeout = new TimeSpan(0, 30, 0);
@@ -71,6 +60,43 @@ namespace Trunked
                 try
                 {
                     result = MakePrediction(path);
+
+                    if (result.Type == ResultType.Barcode)
+                    {
+                        BarcodeDecoder barcodeDecoder = new BarcodeDecoder();
+
+                        Barcode barcode = barcodeDecoder.Decode(path);
+
+                        if (barcode != null)
+                            googleBooksAPI.CreateResultsTable(googleBooksAPI.GetBookDetailsFromISBN(barcode.Text), tblResults);
+                    }
+                    else if (result.Type == ResultType.Other)
+                    {
+                        if (result.Name.Equals("Book"))
+                        {
+                            BookRecognizer bookRecognizer = new BookRecognizer();
+
+                            string imageText = bookRecognizer.ReadTextFromImage(path);
+
+                            if (!String.IsNullOrWhiteSpace(imageText))
+                            {
+                                List<Dictionary<string, string>> bookDetails = googleBooksAPI.GetBookDetailsFromText(imageText, ConfigurationManager.AppSettings["GoogleBooksAPIMaxResults"]);
+
+                                if (bookDetails != null)
+                                     bookRecognizer.FormatBookResultsForSelection(bookDetails, tblResults);
+                            }
+                            else
+                                lblStatus.Text = imageText;
+                        }
+                        else
+                        {
+                            cllConfidence.Text = result.Probability;
+                            cllItemScanned.Text = result.Name;
+
+                            tblObjectResults.Visible = true;
+                        }
+
+                    }
                 }
                 catch (Microsoft.Rest.HttpOperationException ex)
                 {
@@ -81,25 +107,15 @@ namespace Trunked
                     lblStatus.Text = ex + "<br />" + ex.Message + "<br />" + ex.InnerException;
                 }
 
-                if (result.Type == ResultType.Barcode)
-                {
-                    // Do barcode stuff
-                    
-                    // Just occurred to me that since the QuaggaJS is javascript, we can't really use it how we would like
-                    // from the server-side. Which sucks...
-                }
-                else if (result.Type == ResultType.Other)
-                {
-                    cllItemScanned.Text = result.Name;
-                    cllConfidence.Text = result.Probability;
-
-                    tblObjectResults.Visible = true;
-                }
-
                 File.Delete(path);
             }
 
             ctrlFileUpload.Dispose();
+        }
+
+        protected void btnConfirm_Click(object sender, EventArgs e)
+        {
+            // Do stuff?
         }
 
         protected Result MakePrediction(string predictionImagePath)

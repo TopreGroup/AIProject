@@ -20,7 +20,7 @@
 			<img id="imgLoading" src="Content/Images/Loading.gif" style="width:30px;display:none;"/>
 		</p>	
 
-		<p><asp:Label ID="lblStatus" runat="server" Visible="false" Text="Upload status: " /></p><br />
+		<p><asp:Label ID="lblStatus" runat="server" /></p><br />
 
 		<asp:Table ID="tblObjectResults" runat="server" GridLines="Both" Visible="false" >
             <asp:TableRow>
@@ -32,9 +32,11 @@
                 <asp:TableCell ID="cllItemScanned" CssClass="tblCell" />
                 <asp:TableCell ID="cllConfidence" CssClass="tblCell" />
                 <asp:TableCell CssClass="tblCell">
-                    <asp:Button ID="btnConfirm" runat="server" Text="Confirm" CssClass="btn btn-primary" style="vertical-align: middle;" />
+                    <asp:Button ID="btnConfirm" runat="server" Text="Confirm" OnClick="btnConfirm_Click" CssClass="btn btn-primary" style="vertical-align: middle;" />
                 </asp:TableCell>
             </asp:TableRow>
 		</asp:Table>
+
+        <asp:Table ID="tblResults" runat="server" GridLines="Both" Visible="false" />
     </div>
 </asp:Content>
