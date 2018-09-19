@@ -279,11 +279,6 @@
     <Content Include="Scripts\WebForms\WebParts.js" />
     <Content Include="Scripts\WebForms\WebUIValidation.js" />
     <Content Include="Site.Master" />
-    <Content Include="UploadedImages\0a4575bc-6e40-45a3-becf-d044248442c3.jpg" />
-    <Content Include="UploadedImages\no number.jpg" />
-    <Content Include="UploadedImages\Salvo-159.jpg" />
-    <Content Include="UploadedImages\Salvo-163.jpg" />
-    <Content Include="UploadedImages\testbarcode.jpg" />
     <Content Include="ViewSwitcher.ascx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -341,6 +336,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="UploadedImages\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
