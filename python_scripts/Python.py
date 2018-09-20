@@ -8,7 +8,6 @@
 # In[5]:
 
 
-
 from azure.cognitiveservices.vision.customvision.training import training_api
 from azure.cognitiveservices.vision.customvision.training.models import ImageUrlCreateEntry
 
