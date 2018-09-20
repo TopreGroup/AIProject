@@ -17,6 +17,8 @@ namespace Trunked
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            customVision.Init();
+
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Server.MapPath("~/Content/") + "GoogleServiceAccount.json");
 
             if (!String.IsNullOrEmpty(Request.QueryString["isbn"]))
@@ -59,9 +61,13 @@ namespace Trunked
 
                         if (barcode != null)
                             googleBooksAPI.CreateResultsTable(googleBooksAPI.GetBookDetailsFromISBN(barcode.Text), tblResults);
+
+                        customVision.TrainModel(result, path);
                     }
                     else if (result.Type == ResultType.Other)
                     {
+                        //customVision.TrainModel(result, path);
+
                         if (result.Name.Equals("Book"))
                         {
                             BookRecognizer bookRecognizer = new BookRecognizer();
@@ -105,6 +111,8 @@ namespace Trunked
         protected void btnConfirm_Click(object sender, EventArgs e)
         {
             // Do stuff?
+
+            // customVision.TrainModel(result); 
         }
     }
 }

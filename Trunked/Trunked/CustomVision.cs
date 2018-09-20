@@ -3,10 +3,9 @@ using System.Configuration;
 using System.Net;
 using System.IO;
 using System.Collections.Generic;
-using System.Web.UI.WebControls;
-using System.Web.UI;
-using Newtonsoft.Json.Linq;
+using System.Threading;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training; // -Version 0.12.0-preview
+using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction; // -Version 0.10.0-preview
 
 namespace Trunked
@@ -49,6 +48,66 @@ namespace Trunked
                 result.Type = ResultType.Other;
 
             return result;
+        }
+
+        protected void CreateNewTag(string newTag)
+        {
+            var tags = TrainingApi.GetTags(ProjectID);
+
+            bool tagExists = false;
+            Tag bookTag = null;
+
+            foreach (Tag tag in tags)
+            {
+                if (tag.Name.Equals(newTag))
+                {
+                    tagExists = true;
+                    bookTag = tag;
+                    break;
+                }
+            }
+
+            if (!tagExists)
+            {
+                // Save image in tag folder
+                // Check number of images in folder
+                // If > 5, proceed with creating tag and training
+
+                bookTag = TrainingApi.CreateTag(ProjectID, newTag);
+            }
+        }
+
+        public void TrainModel(Result result, string imagePath)
+        {
+            var tags = TrainingApi.GetTags(ProjectID);
+
+            Tag bookTag = null;
+
+            foreach (Tag tag in tags)
+            {
+                if (tag.Name.Equals(result.Name))
+                {
+                    bookTag = tag;
+                    break;
+                }
+            }
+
+            using (var stream = File.Open(imagePath, FileMode.Open))
+            {
+                TrainingApi.CreateImagesFromData(ProjectID, stream, new List<string>() { bookTag.Id.ToString() });
+            }
+
+            var iteration = TrainingApi.TrainProject(ProjectID);
+
+            while (iteration.Status == "Training")
+            {
+                Thread.Sleep(1000);
+
+                iteration = TrainingApi.GetIteration(ProjectID, iteration.Id);
+            }
+
+            iteration.IsDefault = true;
+            TrainingApi.UpdateIteration(ProjectID, iteration.Id, iteration);
         }
     }
 }
