@@ -2,21 +2,14 @@
 using System.Configuration;
 using System.IO;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 using System.Collections.Generic;
-using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training; // -Version 0.12.0-preview
-using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction; // -Version 0.10.0-preview
 
 namespace Trunked
 {
     public partial class _Default : Page
     {
-        protected string trainingKey = ConfigurationManager.AppSettings["CustomVisionTrainingKey"];
-        protected string predictionKey = ConfigurationManager.AppSettings["CustomVisionPredictionKey"];
-        protected Guid projectID = new Guid(ConfigurationManager.AppSettings["CustomVisionProjectID"]);
-
-        GoogleBooksAPI googleBooksAPI = new GoogleBooksAPI();
-        protected TrainingApi trainingApi;
+        protected GoogleBooksAPI googleBooksAPI = new GoogleBooksAPI();
+        protected CustomVision customVision = new CustomVision();
 
         protected string recognizedText = "";
         protected bool resultsFound;
@@ -28,9 +21,6 @@ namespace Trunked
 
             if (!String.IsNullOrEmpty(Request.QueryString["isbn"]))
                 googleBooksAPI.CreateResultsTable(googleBooksAPI.GetBookDetailsFromISBN(Request.QueryString["isbn"]), tblResults);
-
-            trainingApi = new TrainingApi() { ApiKey = trainingKey };
-            trainingApi.HttpClient.Timeout = new TimeSpan(0, 30, 0);
         }
 
         protected void RecognizeButton_Click(object sender, EventArgs e)
@@ -59,7 +49,7 @@ namespace Trunked
 
                 try
                 {
-                    result = MakePrediction(path);
+                    result = customVision.MakePrediction(path);
 
                     if (result.Type == ResultType.Barcode)
                     {
@@ -95,7 +85,6 @@ namespace Trunked
 
                             tblObjectResults.Visible = true;
                         }
-
                     }
                 }
                 catch (Microsoft.Rest.HttpOperationException ex)
@@ -116,28 +105,6 @@ namespace Trunked
         protected void btnConfirm_Click(object sender, EventArgs e)
         {
             // Do stuff?
-        }
-
-        protected Result MakePrediction(string predictionImagePath)
-        {
-            PredictionEndpoint endpoint = new PredictionEndpoint() { ApiKey = predictionKey };
-            MemoryStream predictionImage = new MemoryStream(File.ReadAllBytes(predictionImagePath));
-
-            Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models.ImagePrediction predictionResult = endpoint.PredictImage(projectID, predictionImage);
-
-            Result result = new Result
-            {
-                // First result in list is highest probability
-                Name = predictionResult.Predictions[0].TagName,
-                Probability = predictionResult.Predictions[0].Probability.ToString()
-            };
-
-            if (result.Name.Equals("Barcode"))
-                result.Type = ResultType.Barcode;
-            else
-                result.Type = ResultType.Other;
-
-            return result;
         }
     }
 }
