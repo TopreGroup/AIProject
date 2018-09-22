@@ -2,10 +2,10 @@
 using System.Configuration;
 using System.IO;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 using System.Collections.Generic;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training; // -Version 0.12.0-preview
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction; // -Version 0.10.0-preview
+using ImageResizer;
 
 namespace Trunked
 {
@@ -48,13 +48,16 @@ namespace Trunked
                     path = Server.MapPath("~/UploadedImages/") + fileName;
 
                     ctrlFileUpload.SaveAs(path);
+
+                    // Resizes the image to a better size for the decoder and also for the model
+                    ImageBuilder.Current.Build(path, path, new ResizeSettings("width=768&height=1024"));
                 }
                 catch (Exception ex)
                 {
                     lblStatus.Text = "Upload status: The file could not be uploaded. The following error occured: " + ex.Message;
                     lblStatus.Visible = true;
                 }
-
+                
                 Result result = new Result();
 
                 try
@@ -106,7 +109,7 @@ namespace Trunked
                 {
                     lblStatus.Text = ex + "<br />" + ex.Message + "<br />" + ex.InnerException;
                 }
-
+                
                 File.Delete(path);
             }
 
