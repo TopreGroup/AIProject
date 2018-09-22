@@ -2,6 +2,8 @@
 using System.Configuration;
 using System.IO;
 using System.Web.UI;
+using System.Web.UI.WebControls;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training; // -Version 0.12.0-preview
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction; // -Version 0.10.0-preview
@@ -11,6 +13,9 @@ namespace Trunked
 {
     public partial class _Default : Page
     {
+        protected readonly string ERROR_IMAGESIZE = "BadRequestImageSizeBytes";
+        protected readonly string MESSAGE_IMAGESIZE = "Image file is too large. Please choose an image smaller than 4MB";
+
         protected string trainingKey = ConfigurationManager.AppSettings["CustomVisionTrainingKey"];
         protected string predictionKey = ConfigurationManager.AppSettings["CustomVisionPredictionKey"];
         protected Guid projectID = new Guid(ConfigurationManager.AppSettings["CustomVisionProjectID"]);
@@ -35,7 +40,7 @@ namespace Trunked
 
         protected void RecognizeButton_Click(object sender, EventArgs e)
         {
-            tblObjectResults.Visible = false;
+            Reset();
 
             if (ctrlFileUpload.HasFile)
             {
@@ -54,8 +59,7 @@ namespace Trunked
                 }
                 catch (Exception ex)
                 {
-                    lblStatus.Text = "Upload status: The file could not be uploaded. The following error occured: " + ex.Message;
-                    lblStatus.Visible = true;
+                    UpdateLabelText(lblStatus, "The file could not be uploaded. The following error occured: " + ex.Message);
                 }
                 
                 Result result = new Result();
@@ -63,6 +67,8 @@ namespace Trunked
                 try
                 {
                     result = MakePrediction(path);
+
+                    UpdateLabelText(lblRecognizedAs, "Object recognized as: <strong>" + result.Name + "</strong>");
 
                     if (result.Type == ResultType.Barcode)
                     {
@@ -72,6 +78,8 @@ namespace Trunked
 
                         if (barcode != null)
                             googleBooksAPI.CreateResultsTable(googleBooksAPI.GetBookDetailsFromISBN(barcode.Text), tblResults);
+                        else
+                            UpdateLabelText(lblStatus, "Unable to decode barcode. Please try again.");
                     }
                     else if (result.Type == ResultType.Other)
                     {
@@ -86,10 +94,10 @@ namespace Trunked
                                 List<Dictionary<string, string>> bookDetails = googleBooksAPI.GetBookDetailsFromText(imageText, ConfigurationManager.AppSettings["GoogleBooksAPIMaxResults"]);
 
                                 if (bookDetails != null)
-                                     bookRecognizer.FormatBookResultsForSelection(bookDetails, tblResults);
+                                    bookRecognizer.FormatBookResultsForSelection(bookDetails, tblResults);
                             }
                             else
-                                lblStatus.Text = imageText;
+                                UpdateLabelText(lblStatus, imageText);
                         }
                         else
                         {
@@ -98,20 +106,24 @@ namespace Trunked
 
                             tblObjectResults.Visible = true;
                         }
-
                     }
                 }
                 catch (Microsoft.Rest.HttpOperationException ex)
                 {
-                    lblStatus.Text = "ERROR: " + ex.Message + "<br />" + ex.Response.Content;
+                    JObject exContent = JObject.Parse(ex.Response.Content);
+
+                    if (exContent["code"].ToString().Equals(ERROR_IMAGESIZE))
+                        UpdateLabelText(lblStatus, MESSAGE_IMAGESIZE);
                 }
                 catch (Exception ex)
                 {
-                    lblStatus.Text = ex + "<br />" + ex.Message + "<br />" + ex.InnerException;
+                    UpdateLabelText(lblStatus, ex + "<br />" + ex.Message + "<br />" + ex.InnerException);
                 }
                 
                 File.Delete(path);
             }
+            else
+                UpdateLabelText(lblStatus, "Please select an image before clicking <strong><i>Recognize</i></strong>");
 
             ctrlFileUpload.Dispose();
         }
@@ -141,6 +153,24 @@ namespace Trunked
                 result.Type = ResultType.Other;
 
             return result;
+        }
+
+        protected void UpdateLabelText(Label label, string newText)
+        {
+            label.Text = "<p>" + newText + "</p><br />";
+        }
+
+        protected void Reset()
+        {
+            lblStatus.Text = "";
+            lblRecognizedAs.Text = "";
+
+            tblObjectResults.Visible = false;
+
+            cllItemScanned.Text = "";
+            cllConfidence.Text = "";
+
+            tblResults.Rows.Clear();
         }
     }
 }
