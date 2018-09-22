@@ -17,6 +17,9 @@ namespace Trunked
         protected string predictionKey = ConfigurationManager.AppSettings["CustomVisionPredictionKey"];
         protected Guid projectID = new Guid(ConfigurationManager.AppSettings["CustomVisionProjectID"]);
 
+        protected GoogleBooksAPI googleBooksAPI = new GoogleBooksAPI();
+        protected CustomVision customVision = new CustomVision();
+
         protected string recognizedText = "";
         protected bool resultsFound;
         protected List<Dictionary<string, string>> bookDetailsList;
