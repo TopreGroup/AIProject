@@ -3,9 +3,9 @@ using ZXing;
 
 namespace Trunked
 {
-    public class BarcodeDecoder
+    public static class BarcodeDecoder
     {
-        public Barcode Decode(string imagePath)
+        public static Barcode Decode(string imagePath)
         {
             BarcodeReader reader = new BarcodeReader()
             {

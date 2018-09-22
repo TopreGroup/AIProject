@@ -6,9 +6,9 @@ using System.Web.UI;
 
 namespace Trunked
 {
-    public class BookRecognizer
+    public static class BookRecognizer
     {
-        public string ReadTextFromImage(string imagePath)
+        public static string ReadTextFromImage(string imagePath)
         {
             var client = ImageAnnotatorClient.Create();
             var image = Google.Cloud.Vision.V1.Image.FromFile(imagePath);
@@ -23,7 +23,7 @@ namespace Trunked
             return null;
         }
 
-        public void FormatBookResultsForSelection(List<Dictionary<string, string>> bookDetailsList, Table tblResults)
+        public static void FormatBookResultsForSelection(List<Dictionary<string, string>> bookDetailsList, Table tblResults)
         {
             List<string> headings = new List<string>()
             {

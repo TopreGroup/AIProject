@@ -5,6 +5,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using ImageResizer;
 
 namespace Trunked
 {
@@ -46,15 +47,18 @@ namespace Trunked
                 {
                     string fileName = Path.GetFileName(ctrlFileUpload.FileName);
 
-                    path = Server.MapPath("~/UploadedImages/") + fileName;
+                    path = Server.MapPath("~/temp/") + fileName;
 
                     ctrlFileUpload.SaveAs(path);
+
+                    // Resizes the image to a better size for the decoder and also for the model
+                    ImageBuilder.Current.Build(path, path, new ResizeSettings("width=768&height=1024"));
                 }
                 catch (Exception ex)
                 {
                     UpdateLabelText(lblStatus, "The file could not be uploaded. The following error occured: " + ex.Message);
                 }
-
+                
                 Result result = new Result();
 
                 try
@@ -65,9 +69,7 @@ namespace Trunked
 
                     if (result.Type == ResultType.Barcode)
                     {
-                        BarcodeDecoder barcodeDecoder = new BarcodeDecoder();
-
-                        Barcode barcode = barcodeDecoder.Decode(path);
+                        Barcode barcode = BarcodeDecoder.Decode(path);
 
                         if (barcode != null)
                             googleBooksAPI.CreateResultsTable(googleBooksAPI.GetBookDetailsFromISBN(barcode.Text), tblResults);
@@ -82,16 +84,14 @@ namespace Trunked
 
                         if (result.Name.Equals("Book"))
                         {
-                            BookRecognizer bookRecognizer = new BookRecognizer();
-
-                            string imageText = bookRecognizer.ReadTextFromImage(path);
+                            string imageText = BookRecognizer.ReadTextFromImage(path);
 
                             if (!String.IsNullOrWhiteSpace(imageText))
                             {
                                 List<Dictionary<string, string>> bookDetails = googleBooksAPI.GetBookDetailsFromText(imageText, ConfigurationManager.AppSettings["GoogleBooksAPIMaxResults"]);
 
                                 if (bookDetails != null)
-                                    bookRecognizer.FormatBookResultsForSelection(bookDetails, tblResults);
+                                    BookRecognizer.FormatBookResultsForSelection(bookDetails, tblResults);
                             }
                             else
                                 UpdateLabelText(lblStatus, imageText);
@@ -116,7 +116,7 @@ namespace Trunked
                 {
                     UpdateLabelText(lblStatus, ex + "<br />" + ex.Message + "<br />" + ex.InnerException);
                 }
-
+                
                 File.Delete(path);
             }
             else
