@@ -32,7 +32,7 @@ namespace Trunked
 
             JObject jsonObj = JObject.Parse(jsonString);
 
-            resultText += "<br />Number of books found: " + jsonObj["totalItems"].ToString() + "<br />";
+            ResultText += "<br />Number of books found: " + jsonObj["totalItems"].ToString() + "<br />";
 
             if (jsonObj["totalItems"].ToString().Equals("0"))
                 return null;
@@ -59,7 +59,7 @@ namespace Trunked
             // Convert the response string to a JSON object
             JObject jsonObj = JObject.Parse(jsonString);
 
-            resultText = "Number of books found: " + jsonObj["totalItems"].ToString() + "<br />";
+            ResultText = "Number of books found: " + jsonObj["totalItems"].ToString() + "<br />";
 
             if (jsonObj["totalItems"].ToString().Equals("0"))
                 return null;
