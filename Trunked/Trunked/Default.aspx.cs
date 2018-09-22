@@ -50,7 +50,7 @@ namespace Trunked
                 {
                     string fileName = Path.GetFileName(ctrlFileUpload.FileName);
 
-                    path = Server.MapPath("~/UploadedImages/") + fileName;
+                    path = Server.MapPath("~/temp/") + fileName;
 
                     ctrlFileUpload.SaveAs(path);
 
@@ -83,16 +83,14 @@ namespace Trunked
                     {
                         if (result.Name.Equals("Book"))
                         {
-                            BookRecognizer bookRecognizer = new BookRecognizer();
-
-                            string imageText = bookRecognizer.ReadTextFromImage(path);
+                            string imageText = BookRecognizer.ReadTextFromImage(path);
 
                             if (!String.IsNullOrWhiteSpace(imageText))
                             {
                                 List<Dictionary<string, string>> bookDetails = googleBooksAPI.GetBookDetailsFromText(imageText, ConfigurationManager.AppSettings["GoogleBooksAPIMaxResults"]);
 
                                 if (bookDetails != null)
-                                    bookRecognizer.FormatBookResultsForSelection(bookDetails, tblResults);
+                                    BookRecognizer.FormatBookResultsForSelection(bookDetails, tblResults);
                             }
                             else
                                 UpdateLabelText(lblStatus, imageText);

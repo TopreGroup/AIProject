@@ -329,7 +329,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="UploadedImages\" />
+    <Folder Include="temp\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">
