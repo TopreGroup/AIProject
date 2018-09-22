@@ -20,9 +20,7 @@ namespace Trunked
         protected GoogleBooksAPI googleBooksAPI = new GoogleBooksAPI();
         protected CustomVision customVision = new CustomVision();
 
-        protected string recognizedText = "";
-        protected bool resultsFound;
-        protected List<Dictionary<string, string>> bookDetailsList;
+        protected List<Dictionary<string, string>> booksList;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -32,7 +30,7 @@ namespace Trunked
                 googleBooksAPI.CreateResultsTable(googleBooksAPI.GetBookDetailsFromISBN(Request.QueryString["isbn"]), tblResults);
         }
 
-        protected void RecognizeButton_Click(object sender, EventArgs e)
+        protected void btnRecognize_Click(object sender, EventArgs e)
         {
             Reset();
 
@@ -59,7 +57,8 @@ namespace Trunked
                 {
                     result = customVision.MakePrediction(path);
 
-                    UpdateLabelText(lblRecognizedAs, "Object recognized as: <strong>" + result.Name + "</strong>");
+                    lblRecognizedAs.Text = "<br />Object recognized as: <strong>" + result.Name + "</strong>";
+                    pnlRecognizedAs.Visible = true;
 
                     if (result.Type == ResultType.Barcode)
                     {
@@ -79,6 +78,9 @@ namespace Trunked
                     {
                         if (result.Name.Equals("Book"))
                         {
+                            btnBookNotFound.Visible = true;
+                            lblNewLines.Visible = true;
+
                             BookRecognizer bookRecognizer = new BookRecognizer();
 
                             string imageText = bookRecognizer.ReadTextFromImage(path);
@@ -91,7 +93,7 @@ namespace Trunked
                                     bookRecognizer.FormatBookResultsForSelection(bookDetails, tblResults);
                             }
                             else
-                                UpdateLabelText(lblStatus, "No text was found in the image uploaded. Please try again.");
+                                UpdateLabelText(lblStatus, "Unable to recognize book cover. Please try again.");
                         }
                         else
                         {
@@ -119,6 +121,9 @@ namespace Trunked
             else
                 UpdateLabelText(lblStatus, "Please select an image before clicking <strong><i>Recognize</i></strong>");
 
+            if (!String.IsNullOrEmpty(lblStatus.Text))
+                lblStatus.Visible = true;
+
             ctrlFileUpload.Dispose();
         }
 
@@ -127,6 +132,41 @@ namespace Trunked
             // Do stuff?
 
             // customVision.TrainModel(result); 
+        }
+
+        protected void lnkbtnManualInput_Click(object sender, EventArgs e)
+        {
+            PrepareManualForm(false);
+        }
+
+        protected void btnBookNotFound_Click(object sender, EventArgs e)
+        {
+            PrepareManualForm(true);
+        }
+
+        protected void PrepareManualForm(bool book)
+        {
+            pnlRecognition.Visible = false;
+            pnlManual.Visible = true;
+
+            List<string> types = new List<string>();
+
+            // Do a DB call and get a list of types/categories and add them to the list instead of hardcoding here
+            types.Add("Select the type of item");
+            types.Add("Book");
+            types.Add("Clothing");
+            types.Add("DVD");
+            types.Add("CD");
+            types.Add("Vinyl");
+
+            ddlItemType.DataSource = types;
+            ddlItemType.DataBind();
+
+            if (book)
+            {
+                ddlItemType.SelectedValue = "Book";
+
+            }
         }
 
         protected void UpdateLabelText(Label label, string newText)
@@ -145,6 +185,89 @@ namespace Trunked
             cllConfidence.Text = "";
 
             tblResults.Rows.Clear();
+        }
+
+        protected void txtISBN_TextChanged(object sender, EventArgs e)
+        {
+            if (!String.IsNullOrEmpty(txtISBN.Text))
+            {                
+                booksList = googleBooksAPI.GetBookDetailsFromISBN(txtISBN.Text);
+
+                if (booksList != null)
+                {
+                    string authors = booksList[0]["Author(s)"].Replace("<br />", ",");
+                    authors = authors.Substring(0, authors.Length - 1);
+
+                    lblBookSuggestion.Text = "Is your book <strong>" + booksList[0]["Title"] + "</strong> by <strong>" + authors + "</strong>?";
+
+                    btnYes.CommandName = booksList[0]["Title"] + "|||" + authors;
+
+                    pnlSuggestion.Visible = true;
+                }
+            }
+        }
+
+        protected void btnYes_Click(object sender, EventArgs e)
+        {
+            string[] splitBook = btnYes.CommandName.Split(new string[] { "|||" }, StringSplitOptions.None);
+
+            string correctTitle = splitBook[0];
+            string correctAuthors = splitBook[1];
+
+            pnlSuggestion.Visible = false;
+
+            booksList = googleBooksAPI.GetBookDetailsFromISBN(txtISBN.Text);
+
+            if (booksList != null)
+            {
+                foreach (Dictionary<string, string> book in booksList)
+                {
+                    string currentAuthors = book["Author(s)"].Replace("<br />", ",");
+                    currentAuthors = currentAuthors.Substring(0, currentAuthors.Length - 1);
+
+                    if (book["Title"].Equals(correctTitle) && currentAuthors.Equals(correctAuthors))
+                    {
+                        txtTitle.Text = book["Title"];
+                        txtAuthors.Text = currentAuthors;
+                        txtPublisher.Text = book["Publisher"];
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        protected void btnNo_Click(object sender, EventArgs e)
+        {
+            pnlSuggestion.Visible = false;
+        }
+
+        protected void btnManualSubmit_Click(object sender, EventArgs e)
+        {
+            pnlManual.Visible = false;
+            pnlConfirmation.Visible = true;
+
+            string isbn = txtISBN.Text;
+            string title = txtTitle.Text;
+            string authors = txtAuthors.Text;
+            string publisher = txtPublisher.Text;
+            string type = ddlItemType.SelectedValue;
+
+            btnBookNotFound.Visible = true;
+            lblNewLines.Visible = true;
+
+            List<Dictionary<string, string>> bookDetails = googleBooksAPI.GetBookDetailsFromText(title + authors + publisher, "1");
+
+            if (bookDetails != null)
+            {
+                BookRecognizer bookRecognizer = new BookRecognizer();
+
+                bookRecognizer.FormatBookResultsForSelection(bookDetails, tblResults);
+            }
+
+            // Either do a confirmation page or add to DB and then show results to user
+
+
         }
     }
 }

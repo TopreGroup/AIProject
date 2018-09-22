@@ -67,6 +67,46 @@ namespace Trunked
             return HandleAPIResults(jsonObj);
         }
 
+        public Dictionary<string, string> GetBookDetailsFromManualForm(string isbn, string title, string author, string publisher)
+        {
+            Dictionary<string, string> results = new Dictionary<string, string>();
+
+            string queryString = "";
+
+            if (!String.IsNullOrEmpty(isbn))
+                queryString += String.Format("isbn:{0}", isbn);
+            else if (!String.IsNullOrEmpty(title))
+                queryString += String.Format("{0}intitle:{1}", String.IsNullOrEmpty(isbn) ? "" : "&", title);
+            else if (!String.IsNullOrEmpty(author))
+                queryString += String.Format("&inauthor:{0}", author);
+            else if (!String.IsNullOrEmpty(publisher))
+                queryString += String.Format("&inpublisher:{0}", publisher);
+
+            string uri = String.Format("{0}?q=", baseURI, queryString);
+
+            WebRequest request = WebRequest.Create(uri);
+            request.Method = "GET";
+
+            WebResponse response = request.GetResponse();
+
+            string jsonString;
+            using (Stream stream = response.GetResponseStream())
+            {
+                StreamReader reader = new StreamReader(stream, System.Text.Encoding.UTF8);
+                jsonString = reader.ReadToEnd();
+            }
+
+            // Convert the response string to a JSON object
+            JObject jsonObj = JObject.Parse(jsonString);
+
+            resultText = "Number of books found: " + jsonObj["totalItems"].ToString() + "<br />";
+
+            if (jsonObj["totalItems"].ToString().Equals("0"))
+                return null;
+
+            return results;
+        }
+
         private List<Dictionary<string, string>> HandleAPIResults(JObject resultObj)
         {
             List<Dictionary<string, string>> bookDetailsList = new List<Dictionary<string, string>>();
@@ -122,7 +162,8 @@ namespace Trunked
                 bookDetails.Add("BarcodeType", String.IsNullOrEmpty(barcodeType) ? "Unknown" : barcodeType);
                 bookDetails.Add("ISBN", String.IsNullOrEmpty(isbn) ? "Unknown" : isbn);
 
-                bookDetails.Add("Publisher", (resultsArray[i]["volumeInfo"]["publisher"] == null ? "Unknown" : resultsArray[i]["volumeInfo"]["publisher"].ToString()) + " (" + (resultsArray[i]["volumeInfo"]["publishedDate"] == null ? "Unknown" : resultsArray[i]["volumeInfo"]["publishedDate"].ToString()) + ")");
+                bookDetails.Add("Publisher", (resultsArray[i]["volumeInfo"]["publisher"] == null ? "Unknown" : resultsArray[i]["volumeInfo"]["publisher"].ToString()));
+                bookDetails.Add("PublishDate", (resultsArray[i]["volumeInfo"]["publishedDate"] == null ? "Unknown" : resultsArray[i]["volumeInfo"]["publishedDate"].ToString()));
 
                 string thumbnailURI = "No thumbnail found";
 
@@ -203,7 +244,7 @@ namespace Trunked
                     else if (i == 5)
                         cellValue = book["Author(s)"];
                     else if (i == 6)
-                        cellValue = book["Publisher"];
+                        cellValue = book["Publisher"] + "(" + book["PublishDate"] + ")";
                     else if (i == 7)
                         cellValue = book["Other"];
 
