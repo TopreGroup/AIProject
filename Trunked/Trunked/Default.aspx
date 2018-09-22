@@ -3,7 +3,7 @@
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <script>
         function showLoadingGif() {
-            $("#imgLoading").show();
+            $(".imgLoading").show();
             $('#<%= lblStatus.ClientID %>').html("");
             $('#<%= tblResults.ClientID %>').css({ 'display': "none" });
             $('#<%= tblObjectResults.ClientID %>').css({ 'display': "none" });
@@ -22,10 +22,9 @@
 
             <p>
 			    <asp:Button ID="btnRecognize" CssClass="btn btn-primary btn-lg" runat="server" OnClientClick="showLoadingGif()" OnClick="btnRecognize_Click" Text="Recognize" />
-			    <img id="imgLoading" src="Content/Images/Loading.gif" style="width:30px;display:none;"/>
+			    <img class="imgLoading" src="Content/Images/Loading.gif" style="width:30px;display:none;"/>
 		    </p>	
-            <asp:Button ID="TEST" runat="server" OnClick="btnBookNotFound_Click" Text="TEST" />
-		    <asp:Label ID="lblStatus" runat="server" style="color: firebrick;" Visible="false" />
+            <asp:Button ID="TEST" runat="server" OnClick="lnkbtnManualInput_Click" Text="TEST" />		    
 
             <asp:Panel ID="pnlRecognizedAs" runat="server" Visible="false" >
                 <p>
@@ -38,7 +37,7 @@
                 </p>
             </asp:Panel>
 
-            <asp:Button ID="btnBookNotFound" runat="server" OnClick="btnBookNotFound_Click" CssClass="btn btn-primary" Text="Book not here?" Visible="false" />
+            <asp:Button ID="btnBookNotFound" runat="server" OnClick="lnkbtnManualInput_Click" CssClass="btn btn-primary" Text="Book not here?" Visible="false" />
             <asp:Label ID="lblNewLines" runat="server" Text="<br /><br />" Visible="false" />
 
 		    <asp:Table ID="tblObjectResults" runat="server" GridLines="Both" Visible="false" >
@@ -58,59 +57,85 @@
         </asp:Panel>            
         <asp:Panel ID="pnlManual" runat="server" Visible="false" >
             <p class="lead">Please fill out the form below as much as possible.</p>
-            <asp:UpdatePanel ID="upnlManualForm" runat="server">
-               <ContentTemplate>
-                    <asp:Table ID="tblManualForm" runat="server" GridLines="None" >
-                        <asp:TableRow>
-                            <asp:TableCell Text="Item Type:" CssClass="tblCell heading" />
-                            <asp:TableCell>
-                                <asp:DropDownList ID="ddlItemType" runat="server" />
-                            </asp:TableCell>
-                        </asp:TableRow>
-                        <asp:TableRow>
-                            <asp:TableCell Text="ISBN:" CssClass="tblCell heading" />
-                            <asp:TableCell>
-                                <asp:TextBox ID="txtISBN" placeholder="ISBN" runat="server" AutoPostBack="true" OnTextChanged="txtISBN_TextChanged" AutoCompleteType="Disabled" /><br />
-                                <asp:Panel ID="pnlSuggestion" runat="server" Visible="false" >
-                                    <asp:Label ID="lblBookSuggestion" runat="server" />
-                                    &nbsp;
-                                    <asp:Button ID="btnYes" runat="server" CssClass="btn btn-primary" Text="Yes" OnClientClick="showSmallLoadingGif()" OnClick="btnYes_Click" style="padding-top: 2px !important;padding-bottom: 2px !important;padding-left: 2px !important;padding-right: 2px !important;" />
-                                    &nbsp;
-                                    <asp:Button ID="btnNo" runat="server" CssClass="btn btn-primary" Text="No" OnClick="btnNo_Click" style="padding-top: 2px !important;padding-bottom: 2px !important;padding-left: 5px !important;padding-right: 5px !important;" />
-                                    <img id="imgSmallLoading" src="Content/Images/Loading.gif" style="width:5px;display:none;"/>
-                                </asp:Panel>
-                            </asp:TableCell>
-                        </asp:TableRow>
-                        <asp:TableRow>
-                            <asp:TableCell Text="Title:" CssClass="tblCell heading" />
-                            <asp:TableCell>
-                                <asp:TextBox ID="txtTitle" placeholder="Title" runat="server" style="max-width: 500px !important;" Width="500" />
-                            </asp:TableCell>
-                        </asp:TableRow>
-                        <asp:TableRow>
-                            <asp:TableCell Text="Author(s):" CssClass="tblCell heading" />
-                            <asp:TableCell>
-                                <asp:TextBox ID="txtAuthors" placeholder="Author(s)" runat="server" style="max-width: 500px !important;" Width="500" />
-                            </asp:TableCell>
-                        </asp:TableRow>
-                        <asp:TableRow>
-                            <asp:TableCell Text="Publisher:" CssClass="tblCell heading" />
-                            <asp:TableCell>
-                                <asp:TextBox ID="txtPublisher" placeholder="Publisher" runat="server" style="max-width: 500px !important;" Width="500" />
-                            </asp:TableCell>
-                        </asp:TableRow>
-                        <asp:TableRow>
-                            <asp:TableCell>
-                                <asp:Button ID="btnManualSubmit" runat="server" CssClass="btn btn-primary btn-lg" OnClick="btnManualSubmit_Click" Text="Submit" />
-                            </asp:TableCell>
-                        </asp:TableRow>
-                    </asp:Table>
-                </ContentTemplate>
-            </asp:UpdatePanel>
+            <asp:Panel ID="upnlManualForm" runat="server">
+                <asp:Table ID="tblManualForm" runat="server" GridLines="None" >
+                    <asp:TableRow>
+                        <asp:TableCell Text="Item Type:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:DropDownList ID="ddlItemType" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlItemType_SelectedIndexChanged" />
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowISBN" >
+                        <asp:TableCell Text="ISBN:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:TextBox ID="txtISBN" placeholder="ISBN" runat="server" AutoPostBack="true" OnTextChanged="txtISBN_TextChanged" AutoCompleteType="Disabled" /><br />
+                            <asp:Panel ID="pnlSuggestion" runat="server" Visible="false" >
+                                <asp:Label ID="lblBookSuggestion" runat="server" />
+                                &nbsp;
+                                <asp:Button ID="btnYes" runat="server" CssClass="btn btn-primary" Text="Yes" OnClientClick="showSmallLoadingGif()" OnClick="btnYes_Click" style="padding-top: 2px !important;padding-bottom: 2px !important;padding-left: 5px !important;padding-right: 5px !important;" />
+                                &nbsp;
+                                <asp:Button ID="btnNo" runat="server" CssClass="btn btn-primary" Text="No" OnClick="btnNo_Click" style="padding-top: 2px !important;padding-bottom: 2px !important;padding-left: 5px !important;padding-right: 5px !important;" />
+                                <img id="imgSmallLoading" src="Content/Images/Loading.gif" style="width:5px;display:none;"/>
+                            </asp:Panel>
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowBookTitle" >
+                        <asp:TableCell Text="Title:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:TextBox ID="txtBookTitle" placeholder="Title" runat="server" style="max-width: 500px !important;" Width="500" /><span style="color:red;vertical-align: top;">*</span>
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowBookAuthors" >
+                        <asp:TableCell Text="Author(s):" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:TextBox ID="txtBookAuthors" placeholder="Author(s)" runat="server" style="max-width: 500px !important;" Width="500" /><span style="color:red;vertical-align: top;">*</span>
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowBookPublisher">
+                        <asp:TableCell Text="Publisher:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:TextBox ID="txtBookPublisher" placeholder="Publisher" runat="server" style="max-width: 500px !important;" Width="500" />
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowClothingBrand" >
+                        <asp:TableCell Text="Brand:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:TextBox ID="txtClothingBrand" placeholder="Brand" runat="server" style="max-width: 500px !important;" Width="500" />
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowClothingType" >
+                        <asp:TableCell Text="Clothing Type:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:DropDownList ID="ddlClothingType" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlClothingType_SelectedIndexChanged" />
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowClothingSubType" >
+                        <asp:TableCell Text="Clothing SubType:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:DropDownList ID="ddlClothingSubType" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlClothingSubType_SelectedIndexChanged" />
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowClothingSize" >
+                        <asp:TableCell Text="Size:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:TextBox ID="txtClothingSize" placeholder="Size" runat="server" style="max-width: 500px !important;" Width="500" />
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow>
+                        <asp:TableCell>
+                            <asp:Button ID="btnManualSubmit" runat="server" CssClass="btn btn-primary btn-lg" OnClientClick="showLoadingGif()" OnClick="btnManualSubmit_Click" Text="Submit" />
+                        </asp:TableCell>
+                        <asp:TableCell>
+                            <img class="imgLoading" src="Content/Images/Loading.gif" style="width:30px;display:none;"/>
+                        </asp:TableCell>
+                    </asp:TableRow>
+                </asp:Table>
+            </asp:Panel>
         </asp:Panel>
         <asp:Panel ID="pnlConfirmation" runat="server" Visible="false" >
             <p class="lead">Please confirm the following is correct.</p>            
         </asp:Panel>    
+        <asp:Label ID="lblStatus" runat="server" style="color: firebrick;" Visible="false" />
         <asp:Table ID="tblResults" runat="server" GridLines="Both" Visible="false" />
     </div>
 </asp:Content>

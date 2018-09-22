@@ -67,22 +67,23 @@ namespace Trunked
             return HandleAPIResults(jsonObj);
         }
 
-        public Dictionary<string, string> GetBookDetailsFromManualForm(string isbn, string title, string author, string publisher)
+        public List<Dictionary<string, string>> GetBookDetailsFromManualForm(string isbn, string title, string author, string publisher)
         {
-            Dictionary<string, string> results = new Dictionary<string, string>();
-
             string queryString = "";
 
             if (!String.IsNullOrEmpty(isbn))
                 queryString += String.Format("isbn:{0}", isbn);
-            else if (!String.IsNullOrEmpty(title))
-                queryString += String.Format("{0}intitle:{1}", String.IsNullOrEmpty(isbn) ? "" : "&", title);
-            else if (!String.IsNullOrEmpty(author))
-                queryString += String.Format("&inauthor:{0}", author);
-            else if (!String.IsNullOrEmpty(publisher))
-                queryString += String.Format("&inpublisher:{0}", publisher);
 
-            string uri = String.Format("{0}?q=", baseURI, queryString);
+            if (!String.IsNullOrEmpty(title))
+                queryString += String.Format("{0}intitle:{1}", String.IsNullOrEmpty(queryString) ? "" : "&", title);
+
+            if (!String.IsNullOrEmpty(author))
+                queryString += String.Format("{0}inauthor:{1}", String.IsNullOrEmpty(queryString) ? "" : "&", author);
+
+            if (!String.IsNullOrEmpty(publisher))
+                queryString += String.Format("{0}inpublisher:{1}", String.IsNullOrEmpty(queryString) ? "" : "&", publisher);
+
+            string uri = String.Format("{0}?q={1}", baseURI, queryString);
 
             WebRequest request = WebRequest.Create(uri);
             request.Method = "GET";
@@ -104,7 +105,7 @@ namespace Trunked
             if (jsonObj["totalItems"].ToString().Equals("0"))
                 return null;
 
-            return results;
+            return HandleAPIResults(jsonObj);
         }
 
         private List<Dictionary<string, string>> HandleAPIResults(JObject resultObj)

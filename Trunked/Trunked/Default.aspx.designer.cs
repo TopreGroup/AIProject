@@ -49,15 +49,6 @@ namespace Trunked {
         protected global::System.Web.UI.WebControls.Button TEST;
         
         /// <summary>
-        /// lblStatus control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblStatus;
-        
-        /// <summary>
         /// pnlRecognizedAs control.
         /// </summary>
         /// <remarks>
@@ -154,7 +145,7 @@ namespace Trunked {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.UpdatePanel upnlManualForm;
+        protected global::System.Web.UI.WebControls.Panel upnlManualForm;
         
         /// <summary>
         /// tblManualForm control.
@@ -173,6 +164,15 @@ namespace Trunked {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList ddlItemType;
+        
+        /// <summary>
+        /// rowISBN control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableRow rowISBN;
         
         /// <summary>
         /// txtISBN control.
@@ -220,31 +220,130 @@ namespace Trunked {
         protected global::System.Web.UI.WebControls.Button btnNo;
         
         /// <summary>
-        /// txtTitle control.
+        /// rowBookTitle control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTitle;
+        protected global::System.Web.UI.WebControls.TableRow rowBookTitle;
         
         /// <summary>
-        /// txtAuthors control.
+        /// txtBookTitle control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtAuthors;
+        protected global::System.Web.UI.WebControls.TextBox txtBookTitle;
         
         /// <summary>
-        /// txtPublisher control.
+        /// rowBookAuthors control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtPublisher;
+        protected global::System.Web.UI.WebControls.TableRow rowBookAuthors;
+        
+        /// <summary>
+        /// txtBookAuthors control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtBookAuthors;
+        
+        /// <summary>
+        /// rowBookPublisher control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableRow rowBookPublisher;
+        
+        /// <summary>
+        /// txtBookPublisher control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtBookPublisher;
+        
+        /// <summary>
+        /// rowClothingBrand control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableRow rowClothingBrand;
+        
+        /// <summary>
+        /// txtClothingBrand control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtClothingBrand;
+        
+        /// <summary>
+        /// rowClothingType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableRow rowClothingType;
+        
+        /// <summary>
+        /// ddlClothingType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlClothingType;
+        
+        /// <summary>
+        /// rowClothingSubType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableRow rowClothingSubType;
+        
+        /// <summary>
+        /// ddlClothingSubType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlClothingSubType;
+        
+        /// <summary>
+        /// rowClothingSize control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableRow rowClothingSize;
+        
+        /// <summary>
+        /// txtClothingSize control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtClothingSize;
         
         /// <summary>
         /// btnManualSubmit control.
@@ -263,6 +362,15 @@ namespace Trunked {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Panel pnlConfirmation;
+        
+        /// <summary>
+        /// lblStatus control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblStatus;
         
         /// <summary>
         /// tblResults control.
