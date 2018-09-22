@@ -20,8 +20,8 @@ namespace Trunked
         protected string predictionKey = ConfigurationManager.AppSettings["CustomVisionPredictionKey"];
         protected Guid projectID = new Guid(ConfigurationManager.AppSettings["CustomVisionProjectID"]);
 
-        GoogleBooksAPI googleBooksAPI = new GoogleBooksAPI();
-        protected TrainingApi trainingApi;
+        protected GoogleBooksAPI googleBooksAPI = new GoogleBooksAPI();
+        protected CustomVision customVision = new CustomVision();
 
         protected string recognizedText = "";
         protected bool resultsFound;
@@ -29,13 +29,12 @@ namespace Trunked
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            customVision.Init();
+
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Server.MapPath("~/Content/") + "GoogleServiceAccount.json");
 
             if (!String.IsNullOrEmpty(Request.QueryString["isbn"]))
                 googleBooksAPI.CreateResultsTable(googleBooksAPI.GetBookDetailsFromISBN(Request.QueryString["isbn"]), tblResults);
-
-            trainingApi = new TrainingApi() { ApiKey = trainingKey };
-            trainingApi.HttpClient.Timeout = new TimeSpan(0, 30, 0);
         }
 
         protected void RecognizeButton_Click(object sender, EventArgs e)
@@ -66,7 +65,7 @@ namespace Trunked
 
                 try
                 {
-                    result = MakePrediction(path);
+                    result = customVision.MakePrediction(path);
 
                     UpdateLabelText(lblRecognizedAs, "Object recognized as: <strong>" + result.Name + "</strong>");
 
@@ -78,9 +77,13 @@ namespace Trunked
                             googleBooksAPI.CreateResultsTable(googleBooksAPI.GetBookDetailsFromISBN(barcode.Text), tblResults);
                         else
                             UpdateLabelText(lblStatus, "Unable to decode barcode. Please try again.");
+
+                        customVision.TrainModel(result, path);
                     }
                     else if (result.Type == ResultType.Other)
                     {
+                        //customVision.TrainModel(result, path);
+
                         if (result.Name.Equals("Book"))
                         {
                             string imageText = BookRecognizer.ReadTextFromImage(path);
@@ -127,28 +130,8 @@ namespace Trunked
         protected void btnConfirm_Click(object sender, EventArgs e)
         {
             // Do stuff?
-        }
 
-        protected Result MakePrediction(string predictionImagePath)
-        {
-            PredictionEndpoint endpoint = new PredictionEndpoint() { ApiKey = predictionKey };
-            MemoryStream predictionImage = new MemoryStream(File.ReadAllBytes(predictionImagePath));
-
-            Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models.ImagePrediction predictionResult = endpoint.PredictImage(projectID, predictionImage);
-
-            Result result = new Result
-            {
-                // First result in list is highest probability
-                Name = predictionResult.Predictions[0].TagName,
-                Probability = predictionResult.Predictions[0].Probability.ToString()
-            };
-
-            if (result.Name.Equals("Barcode"))
-                result.Type = ResultType.Barcode;
-            else
-                result.Type = ResultType.Other;
-
-            return result;
+            // customVision.TrainModel(result); 
         }
 
         protected void UpdateLabelText(Label label, string newText)
