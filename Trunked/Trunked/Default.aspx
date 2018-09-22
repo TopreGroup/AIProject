@@ -3,16 +3,16 @@
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <script>
 		function showLoadingGif() {
-			$("#imgLoading").show();
+            $("#imgLoading").show();
+            $('#<%= lblStatus.ClientID %>').html("");
+            $('#<%= tblResults.ClientID %>').css({ 'display': "none" });
+            $('#<%= tblObjectResults.ClientID %>').css({ 'display': "none" });
+            $('#<%= lblRecognizedAs.ClientID %>').css({ 'display': "none" });
         }
-
-        function hideLoadingGif() {
-			$("#imgLoading").hide();
-		}
 	</script>
     <div class="jumbotron">
         <h1>Trunked</h1>
-        <p class="lead">Choose your image below and then click the  <strong>"Recognize"</strong> button.</p>
+        <p class="lead">Choose your image below and then click <strong><i>Recognize</i></strong>.</p>
 		<p><asp:FileUpload ID="ctrlFileUpload" runat="server" /></p>
 
         <p>
@@ -20,7 +20,8 @@
 			<img id="imgLoading" src="Content/Images/Loading.gif" style="width:30px;display:none;"/>
 		</p>	
 
-		<p><asp:Label ID="lblStatus" runat="server" /></p><br />
+		<asp:Label ID="lblStatus" runat="server" style="color: firebrick;"/>
+        <asp:Label ID="lblRecognizedAs" runat="server" />
 
 		<asp:Table ID="tblObjectResults" runat="server" GridLines="Both" Visible="false" >
             <asp:TableRow>
