@@ -12,7 +12,7 @@ namespace Trunked
     {
         protected readonly string baseURI = "https://www.googleapis.com/books/v1/volumes";
 
-        public string resultText { get; set; }
+        public string ResultText { get; set; }
 
         public List<Dictionary<string, string>> GetBookDetailsFromText(string bookText, string maxResults)
         {
