@@ -18,7 +18,7 @@ namespace Trunked
         public string PredictionKey { get; set; }
         public Guid ProjectID { get; set; }
 
-        public void Init()
+        public CustomVision()
         {
             TrainingKey = ConfigurationManager.AppSettings["CustomVisionTrainingKey"];
             PredictionKey = ConfigurationManager.AppSettings["CustomVisionPredictionKey"];

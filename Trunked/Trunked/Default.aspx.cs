@@ -26,8 +26,6 @@ namespace Trunked
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            customVision.Init();
-
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Server.MapPath("~/Content/") + "GoogleServiceAccount.json");
 
             if (!String.IsNullOrEmpty(Request.QueryString["isbn"]))
@@ -74,12 +72,11 @@ namespace Trunked
                         else
                             UpdateLabelText(lblStatus, "Unable to decode barcode. Please try again.");
 
+                        // Eventually, should be able to move this from here to after this if block
                         customVision.TrainModel(result, path);
                     }
                     else if (result.Type == ResultType.Other)
                     {
-                        //customVision.TrainModel(result, path);
-
                         if (result.Name.Equals("Book"))
                         {
                             BookRecognizer bookRecognizer = new BookRecognizer();
@@ -94,7 +91,7 @@ namespace Trunked
                                     bookRecognizer.FormatBookResultsForSelection(bookDetails, tblResults);
                             }
                             else
-                                UpdateLabelText(lblStatus, imageText);
+                                UpdateLabelText(lblStatus, "No text was found in the image uploaded. Please try again.");
                         }
                         else
                         {
