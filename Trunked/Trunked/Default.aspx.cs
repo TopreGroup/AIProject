@@ -72,9 +72,7 @@ namespace Trunked
 
                     if (result.Type == ResultType.Barcode)
                     {
-                        BarcodeDecoder barcodeDecoder = new BarcodeDecoder();
-
-                        Barcode barcode = barcodeDecoder.Decode(path);
+                        Barcode barcode = BarcodeDecoder.Decode(path);
 
                         if (barcode != null)
                             googleBooksAPI.CreateResultsTable(googleBooksAPI.GetBookDetailsFromISBN(barcode.Text), tblResults);
