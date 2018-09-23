@@ -79,6 +79,9 @@ namespace Trunked
 
         public void TrainModel(Result result, string imagePath)
         {
+            // Since apparently we can only have 10 iterations max
+            DeleteEarliestIteration();
+
             var tags = TrainingApi.GetTags(ProjectID);
 
             Tag bookTag = null;
@@ -108,6 +111,15 @@ namespace Trunked
 
             iteration.IsDefault = true;
             TrainingApi.UpdateIteration(ProjectID, iteration.Id, iteration);
+        }
+
+        public void DeleteEarliestIteration()
+        {
+            var iterations = TrainingApi.GetIterations(ProjectID);
+
+            Iteration iterationToDelete = iterations[iterations.Count - 1];
+
+            TrainingApi.DeleteIteration(ProjectID, iterationToDelete.Id);
         }
     }
 }
