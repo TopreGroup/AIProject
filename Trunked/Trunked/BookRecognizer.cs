@@ -6,9 +6,9 @@ using System.Web.UI;
 
 namespace Trunked
 {
-    public static class BookRecognizer
+    public class BookRecognizer
     {
-        public static string ReadTextFromImage(string imagePath)
+        public string ReadTextFromImage(string imagePath)
         {
             var client = ImageAnnotatorClient.Create();
             var image = Google.Cloud.Vision.V1.Image.FromFile(imagePath);
@@ -23,7 +23,7 @@ namespace Trunked
             return null;
         }
 
-        public static void FormatBookResultsForSelection(List<Dictionary<string, string>> bookDetailsList, Table tblResults)
+        public void FormatBookResultsForSelection(List<Dictionary<string, string>> bookDetailsList, Table tblResults)
         {
             List<string> headings = new List<string>()
             {
@@ -88,7 +88,7 @@ namespace Trunked
             tblResults.Visible = true;
         }
 
-        public static void FormatBookResultsForConfirmation(List<Dictionary<string, string>> bookDetailsList, Table tblResults)
+        public void FormatBookResultsForConfirmation(List<Dictionary<string, string>> bookDetailsList, Table tblResults, _Default def)
         {
             List<string> headings = new List<string>()
             {
@@ -129,7 +129,7 @@ namespace Trunked
                     else if (i == 3)
                         cellValue = book["Author(s)"];
                     else if (i == 4)
-                        cellValue = book["Publisher"] + "(" + book["PublishDate"] + ")";
+                        cellValue = book["Publisher"] + " (" + book["PublishDate"] + ")";
                     else if (i == 5)
                         cellValue = book["Genre"];
 
@@ -140,7 +140,11 @@ namespace Trunked
                         btnConfirm.CssClass = "btn btn-primary btn-lg";
                         btnConfirm.Text = "Confirm";
 
-                        //btnConfirm.Click += new EventHandler(btnTestClick);
+                        btnConfirm.CommandName = String.Format("{0}|||{1}|||{2}|||{3}|||{4}|||{5}", book["ISBN"], book["Title"], book["Author(s)"], book["Publisher"], book["PublishDate"], book["Genre"]);
+
+                        _Default defaultClass = new _Default();
+
+                        btnConfirm.Click += new EventHandler(def.btnConfirmBook_Click);
 
                         cell.Controls.Add(btnConfirm);
                     }
@@ -155,6 +159,6 @@ namespace Trunked
             }
 
             tblResults.Visible = true;
-        }
+        }  
     }
 }

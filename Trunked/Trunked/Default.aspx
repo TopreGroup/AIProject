@@ -38,7 +38,6 @@
                 </p>
             </asp:Panel>
 
-            <%--<asp:Label ID="lblBookNotFound" runat="server" Text="Unable to recognize book cover. Please upload a different image or click the link above to add it manually" Visible="false" />--%>
             <asp:Button ID="btnBookNotFound" runat="server" OnClick="lnkbtnManualInput_Click" CssClass="btn btn-primary" Text="Book not here?" Visible="false" />
             <asp:Label ID="lblNewLines" runat="server" Text="<br /><br />" Visible="false" />
 
@@ -183,7 +182,8 @@
             </asp:Panel>
         </asp:Panel>
         <asp:Panel ID="pnlConfirmation" runat="server" Visible="false" >
-            <p class="lead">Please confirm the following is correct.</p>            
+            <p class="lead">The following has been added to Trunked. <a href="Default.aspx">Click here</a> to scan another item.</p>        
+            <asp:Label ID="lblConfirmation" runat="server" />
         </asp:Panel>    
         <br />
         <asp:Label ID="lblStatus" runat="server" style="color: firebrick;" Visible="false" />

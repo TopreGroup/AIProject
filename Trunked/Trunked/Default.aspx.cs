@@ -20,6 +20,7 @@ namespace Trunked
 
         protected GoogleBooksAPI googleBooksAPI = new GoogleBooksAPI();
         protected CustomVision customVision = new CustomVision();
+        BookRecognizer bookRecognizer = new BookRecognizer();
 
         protected List<Dictionary<string, string>> booksList;
 
@@ -28,7 +29,7 @@ namespace Trunked
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Server.MapPath("~/Content/") + "GoogleServiceAccount.json");
 
             if (!String.IsNullOrEmpty(Request.QueryString["isbn"]))
-                BookRecognizer.FormatBookResultsForConfirmation(googleBooksAPI.GetBookDetailsFromISBN(Request.QueryString["isbn"]), tblResults);
+                bookRecognizer.FormatBookResultsForConfirmation(googleBooksAPI.GetBookDetailsFromISBN(Request.QueryString["isbn"]), tblResults, this);
         }
 
         protected void btnRecognize_Click(object sender, EventArgs e)
@@ -69,7 +70,7 @@ namespace Trunked
                         Barcode barcode = BarcodeDecoder.Decode(path);
 
                         if (barcode != null)
-                            BookRecognizer.FormatBookResultsForConfirmation(googleBooksAPI.GetBookDetailsFromISBN(barcode.Text), tblResults);
+                            bookRecognizer.FormatBookResultsForConfirmation(googleBooksAPI.GetBookDetailsFromISBN(barcode.Text), tblResults, this);
                         else
                             UpdateLabelText(lblStatus, "Unable to decode barcode. Please try again.");
 
@@ -80,7 +81,7 @@ namespace Trunked
                     {
                         if (result.Name.Equals("Book"))
                         {
-                            string imageText = BookRecognizer.ReadTextFromImage(path);
+                            string imageText = bookRecognizer.ReadTextFromImage(path);
 
                             if (!String.IsNullOrWhiteSpace(imageText))
                             {
@@ -88,7 +89,7 @@ namespace Trunked
 
                                 if (bookDetails != null)
                                 {
-                                    BookRecognizer.FormatBookResultsForSelection(bookDetails, tblResults);
+                                    bookRecognizer.FormatBookResultsForSelection(bookDetails, tblResults);
 
                                     btnBookNotFound.Visible = true;
                                     lblNewLines.Visible = true;
@@ -114,12 +115,15 @@ namespace Trunked
 
                     if (exContent["code"].ToString().Equals(ERROR_IMAGESIZE))
                         UpdateLabelText(lblStatus, MESSAGE_IMAGESIZE);
+
+                    lblStatus.Visible = true;
                 }
                 catch (Exception ex)
                 {
                     UpdateLabelText(lblStatus, ex + "<br />" + ex.Message + "<br />" + ex.InnerException);
+                    lblStatus.Visible = true;
                 }
-                
+
                 File.Delete(path);
             }
             else
@@ -134,11 +138,11 @@ namespace Trunked
         protected void UpdateLabelText(Label label, string newText)
         {
             label.Text = "<p>" + newText + "</p><br />";
+            label.Visible = true;
         }
 
         protected void Reset()
         {
-            //lblBookNotFound.Visible = false;
             pnlRecognizedAs.Visible = false;
             lblNewLines.Visible = false;
             btnBookNotFound.Visible = false;
@@ -157,6 +161,33 @@ namespace Trunked
             // Do stuff?
 
             // customVision.TrainModel(result); 
+        }
+
+        public void btnConfirmBook_Click(object sender, EventArgs e)
+        {
+            Button btnClicked = sender as Button;
+
+            AddToDB(btnClicked.CommandName);
+        }
+
+        protected void AddToDB(string resultText)
+        {
+            string[] details = resultText.Split(new string[] { "|||" }, StringSplitOptions.None);
+
+            string isbn = details[0];
+            string title = details[1];
+            string authors = details[2];
+            string publisher = details[3];
+            string publishDate = details[4];
+            string genre = details[5];
+
+            // ADD TO DATABASE HERE
+
+            Reset();
+            pnlRecognition.Visible = false;
+            pnlConfirmation.Visible = true;
+
+            lblConfirmation.Text = String.Format("<strong>ISBN:</strong> {0}<br /><strong>Title:</strong> {1}<br /><strong>Author(s):</strong> {2}<br /><strong>Publisher:</strong> {3}<br /><strong>Publish Date:</strong> {4}<br /><strong>Genre:</strong> {5}", isbn, title, authors, publisher, publishDate, genre);
         }
 
         protected void lnkbtnManualInput_Click(object sender, EventArgs e)
@@ -571,7 +602,7 @@ namespace Trunked
                     List<Dictionary<string, string>> bookDetails = googleBooksAPI.GetBookDetailsFromManualForm(isbn, title, authors, publisher);
 
                     if (bookDetails != null)
-                        BookRecognizer.FormatBookResultsForConfirmation(bookDetails, tblResults);
+                        bookRecognizer.FormatBookResultsForConfirmation(bookDetails, tblResults, this);
 
                     // Either do a confirmation page or add to DB and then show results to user ??
 
