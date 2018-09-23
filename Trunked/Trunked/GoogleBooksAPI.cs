@@ -186,6 +186,8 @@ namespace Trunked
                         subCategories += subCategory.ToString() + ", ";
 
                     subCategories = subCategories.Substring(0, subCategories.Length - 2);
+
+                    bookDetails.Add("Genre", subCategoriesArray[0].ToString());
                 }
                 else
                     subCategories = "Unknown";
@@ -245,7 +247,7 @@ namespace Trunked
                     else if (i == 5)
                         cellValue = book["Author(s)"];
                     else if (i == 6)
-                        cellValue = book["Publisher"] + "(" + book["PublishDate"] + ")";
+                        cellValue = book["Publisher"] + " (" + book["PublishDate"] + ")";
                     else if (i == 7)
                         cellValue = book["Other"];
 

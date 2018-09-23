@@ -24,7 +24,8 @@
 			    <asp:Button ID="btnRecognize" CssClass="btn btn-primary btn-lg" runat="server" OnClientClick="showLoadingGif()" OnClick="btnRecognize_Click" Text="Recognize" />
 			    <img class="imgLoading" src="Content/Images/Loading.gif" style="width:30px;display:none;"/>
 		    </p>	
-            <asp:Button ID="TEST" runat="server" OnClick="lnkbtnManualInput_Click" Text="TEST" />		    
+
+            <%--<asp:Button ID="TEST" runat="server" OnClick="lnkbtnManualInput_Click" Text="TEST" />--%>
 
             <asp:Panel ID="pnlRecognizedAs" runat="server" Visible="false" >
                 <p>
@@ -37,6 +38,7 @@
                 </p>
             </asp:Panel>
 
+            <%--<asp:Label ID="lblBookNotFound" runat="server" Text="Unable to recognize book cover. Please upload a different image or click the link above to add it manually" Visible="false" />--%>
             <asp:Button ID="btnBookNotFound" runat="server" OnClick="lnkbtnManualInput_Click" CssClass="btn btn-primary" Text="Book not here?" Visible="false" />
             <asp:Label ID="lblNewLines" runat="server" Text="<br /><br />" Visible="false" />
 
@@ -65,6 +67,24 @@
                             <asp:DropDownList ID="ddlItemType" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlItemType_SelectedIndexChanged" />
                         </asp:TableCell>
                     </asp:TableRow>
+                    <asp:TableRow ID="rowOtherItemType" >
+                        <asp:TableCell Text="Item Type:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:TextBox ID="txtOtherItemType" placeholder="Item Type" runat="server" style="max-width: 500px !important;" Width="500" /><span style="color:red;vertical-align: top;">*</span>
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowOtherItemDescription" >
+                        <asp:TableCell Text="Description:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:TextBox ID="txtOtherItemDescription" placeholder="Description of item" runat="server" style="max-width: 500px !important;" Width="500" /><span style="color:red;vertical-align: top;">*</span>
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowOtherItemDetails" >
+                        <asp:TableCell Text="Details:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:TextBox ID="txtOtherItemDetails" placeholder="Any other details of the item" runat="server" style="max-width: 500px !important;" Width="500" />
+                        </asp:TableCell>
+                    </asp:TableRow>
                     <asp:TableRow ID="rowISBN" >
                         <asp:TableCell Text="ISBN:" CssClass="tblCell heading" />
                         <asp:TableCell>
@@ -79,46 +99,76 @@
                             </asp:Panel>
                         </asp:TableCell>
                     </asp:TableRow>
-                    <asp:TableRow ID="rowBookTitle" >
+                    <asp:TableRow ID="rowTitle" >
                         <asp:TableCell Text="Title:" CssClass="tblCell heading" />
                         <asp:TableCell>
-                            <asp:TextBox ID="txtBookTitle" placeholder="Title" runat="server" style="max-width: 500px !important;" Width="500" /><span style="color:red;vertical-align: top;">*</span>
+                            <asp:TextBox ID="txtTitle" placeholder="Title" runat="server" style="max-width: 500px !important;" Width="500" /><span style="color:red;vertical-align: top;">*</span>
                         </asp:TableCell>
                     </asp:TableRow>
-                    <asp:TableRow ID="rowBookAuthors" >
+                    <asp:TableRow ID="rowAuthors" >
                         <asp:TableCell Text="Author(s):" CssClass="tblCell heading" />
                         <asp:TableCell>
-                            <asp:TextBox ID="txtBookAuthors" placeholder="Author(s)" runat="server" style="max-width: 500px !important;" Width="500" /><span style="color:red;vertical-align: top;">*</span>
+                            <asp:TextBox ID="txtAuthors" placeholder="Author(s)" runat="server" style="max-width: 500px !important;" Width="500" /><span style="color:red;vertical-align: top;">*</span>
                         </asp:TableCell>
                     </asp:TableRow>
-                    <asp:TableRow ID="rowBookPublisher">
+                    <asp:TableRow ID="rowPublisher">
                         <asp:TableCell Text="Publisher:" CssClass="tblCell heading" />
                         <asp:TableCell>
-                            <asp:TextBox ID="txtBookPublisher" placeholder="Publisher" runat="server" style="max-width: 500px !important;" Width="500" />
+                            <asp:TextBox ID="txtPublisher" placeholder="Publisher" runat="server" style="max-width: 500px !important;" Width="500" />
                         </asp:TableCell>
                     </asp:TableRow>
-                    <asp:TableRow ID="rowClothingBrand" >
+                    <asp:TableRow ID="rowArtistBand" >
+                        <asp:TableCell Text="Artist/Band Name:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:TextBox ID="txtArtistBand" placeholder="Artist/Band Name" runat="server" style="max-width: 500px !important;" Width="500" /><span style="color:red;vertical-align: top;">*</span>
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowAlbum" >
+                        <asp:TableCell Text="Album Name:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:TextBox ID="txtAlbum" placeholder="Album Name" runat="server" style="max-width: 500px !important;" Width="500" /><span style="color:red;vertical-align: top;">*</span>
+                        </asp:TableCell>
+                    </asp:TableRow>    
+                    <asp:TableRow ID="rowGenre">
+                        <asp:TableCell Text="Genre:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:TextBox ID="txtGenre" placeholder="Genre" runat="server" style="max-width: 500px !important;" Width="500" />
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowBrand" >
                         <asp:TableCell Text="Brand:" CssClass="tblCell heading" />
                         <asp:TableCell>
-                            <asp:TextBox ID="txtClothingBrand" placeholder="Brand" runat="server" style="max-width: 500px !important;" Width="500" />
+                            <asp:TextBox ID="txtBrand" placeholder="Brand" runat="server" style="max-width: 500px !important;" Width="500" />
                         </asp:TableCell>
                     </asp:TableRow>
                     <asp:TableRow ID="rowClothingType" >
                         <asp:TableCell Text="Clothing Type:" CssClass="tblCell heading" />
                         <asp:TableCell>
-                            <asp:DropDownList ID="ddlClothingType" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlClothingType_SelectedIndexChanged" />
+                            <asp:DropDownList ID="ddlClothingType" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlClothingType_SelectedIndexChanged" /><span style="color:red;vertical-align: top;">*</span>
                         </asp:TableCell>
                     </asp:TableRow>
                     <asp:TableRow ID="rowClothingSubType" >
                         <asp:TableCell Text="Clothing SubType:" CssClass="tblCell heading" />
                         <asp:TableCell>
-                            <asp:DropDownList ID="ddlClothingSubType" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlClothingSubType_SelectedIndexChanged" />
+                            <asp:DropDownList ID="ddlClothingSubType" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlClothingSubType_SelectedIndexChanged" /><span style="color:red;vertical-align: top;">*</span>
                         </asp:TableCell>
                     </asp:TableRow>
                     <asp:TableRow ID="rowClothingSize" >
                         <asp:TableCell Text="Size:" CssClass="tblCell heading" />
                         <asp:TableCell>
                             <asp:TextBox ID="txtClothingSize" placeholder="Size" runat="server" style="max-width: 500px !important;" Width="500" />
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowClothingColour" >
+                        <asp:TableCell Text="Colour:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:TextBox ID="txtClothingColour" placeholder="Colour" runat="server" style="max-width: 500px !important;" Width="500" />
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowRating" >
+                        <asp:TableCell Text="Rating:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:TextBox ID="txtRating" placeholder="Rating" runat="server" style="max-width: 500px !important;" Width="500" />
                         </asp:TableCell>
                     </asp:TableRow>
                     <asp:TableRow>
@@ -135,6 +185,7 @@
         <asp:Panel ID="pnlConfirmation" runat="server" Visible="false" >
             <p class="lead">Please confirm the following is correct.</p>            
         </asp:Panel>    
+        <br />
         <asp:Label ID="lblStatus" runat="server" style="color: firebrick;" Visible="false" />
         <asp:Table ID="tblResults" runat="server" GridLines="Both" Visible="false" />
     </div>

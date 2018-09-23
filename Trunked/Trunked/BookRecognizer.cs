@@ -92,7 +92,7 @@ namespace Trunked
         {
             List<string> headings = new List<string>()
             {
-                "ISBN", "Cover", "Title", "Author(s)", "Publisher", "Confirm"
+                "ISBN", "Cover", "Title", "Author(s)", "Publisher", "Genre", "Confirm"
             };
 
             TableRow row = new TableRow();
@@ -130,8 +130,10 @@ namespace Trunked
                         cellValue = book["Author(s)"];
                     else if (i == 4)
                         cellValue = book["Publisher"] + "(" + book["PublishDate"] + ")";
+                    else if (i == 5)
+                        cellValue = book["Genre"];
 
-                    if (i == 5)
+                    if (i == 6)
                     {
                         Button btnConfirm = new Button();
 
