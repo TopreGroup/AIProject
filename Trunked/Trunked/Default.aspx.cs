@@ -28,7 +28,7 @@ namespace Trunked
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Server.MapPath("~/Content/") + "GoogleServiceAccount.json");
 
             if (!String.IsNullOrEmpty(Request.QueryString["isbn"]))
-                googleBooksAPI.CreateResultsTable(googleBooksAPI.GetBookDetailsFromISBN(Request.QueryString["isbn"]), tblResults);
+                BookRecognizer.FormatBookResultsForConfirmation(googleBooksAPI.GetBookDetailsFromISBN(Request.QueryString["isbn"]), tblResults);
         }
 
         protected void btnRecognize_Click(object sender, EventArgs e)
@@ -69,7 +69,7 @@ namespace Trunked
                         Barcode barcode = BarcodeDecoder.Decode(path);
 
                         if (barcode != null)
-                            googleBooksAPI.CreateResultsTable(googleBooksAPI.GetBookDetailsFromISBN(barcode.Text), tblResults);
+                            BookRecognizer.FormatBookResultsForConfirmation(googleBooksAPI.GetBookDetailsFromISBN(barcode.Text), tblResults);
                         else
                             UpdateLabelText(lblStatus, "Unable to decode barcode. Please try again.");
 
