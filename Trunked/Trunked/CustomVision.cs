@@ -119,7 +119,8 @@ namespace Trunked
 
             Iteration iterationToDelete = iterations[iterations.Count - 1];
 
-            TrainingApi.DeleteIteration(ProjectID, iterationToDelete.Id);
+            if (iterations.Count == 10)
+                TrainingApi.DeleteIteration(ProjectID, iterationToDelete.Id);
         }
     }
 }
