@@ -70,7 +70,14 @@ namespace Trunked
                         Barcode barcode = BarcodeDecoder.Decode(path);
 
                         if (barcode != null)
-                            bookRecognizer.FormatBookResultsForConfirmation(googleBooksAPI.GetBookDetailsFromISBN(barcode.Text), tblResults, this);
+                        {
+                            List<Dictionary<string, string>> books = googleBooksAPI.GetBookDetailsFromISBN(barcode.Text);
+
+                            if (books != null)
+                                bookRecognizer.FormatBookResultsForConfirmation(books, tblResults, this);
+                            else
+                                UpdateLabelText(lblStatus, "No similar books found. Please try again.");
+                        }
                         else
                             UpdateLabelText(lblStatus, "Unable to decode barcode. Please try again.");
 
