@@ -26,7 +26,7 @@
 		    </p>	
 
             <%--<asp:Button ID="TEST" runat="server" OnClick="lnkbtnManualInput_Click" Text="TEST" />--%>
-
+            
             <asp:Panel ID="pnlRecognizedAs" runat="server" Visible="false" >
                 <p>
                     <asp:Label ID="lblRecognizedAs" runat="server" />
