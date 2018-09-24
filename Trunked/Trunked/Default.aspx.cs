@@ -156,7 +156,7 @@ namespace Trunked
             tblResults.Rows.Clear();
         }
 
-        protected void btnConfirm_Click(object sender, EventArgs e)
+        protected void btnConfirmObject_Click(object sender, EventArgs e)
         {
             // Do stuff?
 
@@ -176,7 +176,8 @@ namespace Trunked
 
             string isbn = details[0];
             string title = details[1];
-            string authors = details[2];
+            string authors = details[2].Replace("<br />", ", ");
+            authors = authors.Substring(0, authors.Length - 2);
             string publisher = details[3];
             string publishDate = details[4];
             string genre = details[5];
@@ -589,7 +590,7 @@ namespace Trunked
                 if (ValidateBookForm())
                 {
                     pnlManual.Visible = false;
-                    pnlConfirmation.Visible = true;
+                    //pnlConfirmation.Visible = true;
 
                     string isbn = txtISBN.Text;
                     string title = txtTitle.Text;
@@ -599,10 +600,7 @@ namespace Trunked
                     string type = ddlItemType.SelectedValue;
 
                     // Maybe don't bother with getting results from the API. If they enter manually we should assume it's a real book?
-                    List<Dictionary<string, string>> bookDetails = googleBooksAPI.GetBookDetailsFromManualForm(isbn, title, authors, publisher);
-
-                    if (bookDetails != null)
-                        bookRecognizer.FormatBookResultsForConfirmation(bookDetails, tblResults, this);
+                    bookRecognizer.FormatBookResultsForConfirmation(googleBooksAPI.GetBookDetailsFromManualForm(isbn, title, authors, publisher), tblResults, this);
 
                     // Either do a confirmation page or add to DB and then show results to user ??
 
