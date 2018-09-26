@@ -132,7 +132,7 @@ namespace Trunked
             // customVision.TrainModel(result); 
         }
 
-        protected void btnTestDB(object sender, EventArgs e)
+        protected void btnTestDB_Click(object sender, EventArgs e)
         {
             DBConnection test = new DBConnection();
             test.ExecuteQuery();
