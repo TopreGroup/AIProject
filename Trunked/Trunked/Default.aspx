@@ -34,6 +34,7 @@
                 <asp:TableCell ID="cllConfidence" CssClass="tblCell" />
                 <asp:TableCell CssClass="tblCell">
                     <asp:Button ID="btnConfirm" runat="server" Text="Confirm" OnClick="btnConfirm_Click" CssClass="btn btn-primary" style="vertical-align: middle;" />
+                    <asp:Button ID="btnTestDB" runat="server" Text="test DB" OnClick="btnTestDB" CssClass="btn btn-primary" style="vertical-align: middle;" />
                 </asp:TableCell>
             </asp:TableRow>
 		</asp:Table>

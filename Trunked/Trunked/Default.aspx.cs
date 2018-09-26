@@ -132,6 +132,12 @@ namespace Trunked
             // customVision.TrainModel(result); 
         }
 
+        protected void btnTestDB(object sender, EventArgs e)
+        {
+            DBConnection test = new DBConnection();
+            test.ExecuteQuery();
+        }
+
         protected void UpdateLabelText(Label label, string newText)
         {
             label.Text = "<p>" + newText + "</p><br />";
