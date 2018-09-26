@@ -139,10 +139,8 @@ namespace Trunked
 
                         btnConfirm.CssClass = "btn btn-primary btn-lg";
                         btnConfirm.Text = "Confirm";
-
+                        
                         btnConfirm.CommandName = String.Format("{0}|||{1}|||{2}|||{3}|||{4}|||{5}", book["ISBN"], book["Title"], book["Author(s)"], book["Publisher"], book["PublishDate"], book["Genre"]);
-
-                        _Default defaultClass = new _Default();
 
                         btnConfirm.Click += new EventHandler(def.btnConfirmBook_Click);
 

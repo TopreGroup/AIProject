@@ -29,7 +29,12 @@ namespace Trunked
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Server.MapPath("~/Content/") + "GoogleServiceAccount.json");
 
             if (!String.IsNullOrEmpty(Request.QueryString["isbn"]))
-                bookRecognizer.FormatBookResultsForConfirmation(googleBooksAPI.GetBookDetailsFromISBN(Request.QueryString["isbn"]), tblResults, this);
+            {
+                List<Dictionary<string, string>> books = googleBooksAPI.GetBookDetailsFromISBN(Request.QueryString["isbn"]);
+
+                if (books != null)
+                    bookRecognizer.FormatBookResultsForConfirmation(books, tblResults, this);
+            }
         }
 
         protected void btnRecognize_Click(object sender, EventArgs e)
@@ -76,13 +81,13 @@ namespace Trunked
                             if (books != null)
                                 bookRecognizer.FormatBookResultsForConfirmation(books, tblResults, this);
                             else
-                                UpdateLabelText(lblStatus, "No similar books found. Please try again.");
+                                UpdateLabelText(lblStatus, "No similar books found. Please try again.");                            
                         }
                         else
                             UpdateLabelText(lblStatus, "Unable to decode barcode. Please try again.");
 
                         // Eventually, should be able to move this from here to after this if block
-                        customVision.TrainModel(result, path);
+                        //customVision.TrainModel(result, path);
                     }
                     else if (result.Type == ResultType.Other)
                     {
@@ -136,15 +141,14 @@ namespace Trunked
             else
                 UpdateLabelText(lblStatus, "Please select an image before clicking <strong><i>Recognize</i></strong>");
 
-            if (!String.IsNullOrEmpty(lblStatus.Text))
-                lblStatus.Visible = true;
+            lblStatus.Visible = String.IsNullOrEmpty(lblStatus.Text) ? false : true;
 
             ctrlFileUpload.Dispose();
         }
 
         protected void UpdateLabelText(Label label, string newText)
         {
-            label.Text = "<p>" + newText + "</p><br />";
+            label.Text = "<p>" + newText + "</p>";
             label.Visible = true;
         }
 
@@ -607,7 +611,9 @@ namespace Trunked
                     string type = ddlItemType.SelectedValue;
 
                     // Maybe don't bother with getting results from the API. If they enter manually we should assume it's a real book?
-                    bookRecognizer.FormatBookResultsForConfirmation(googleBooksAPI.GetBookDetailsFromManualForm(isbn, title, authors, publisher), tblResults, this);
+                    List<Dictionary<string, string>> books = googleBooksAPI.GetBookDetailsFromManualForm(isbn, title, authors, publisher);
+
+                    bookRecognizer.FormatBookResultsForConfirmation(books, tblResults, this);
 
                     // Either do a confirmation page or add to DB and then show results to user ??
 
