@@ -134,8 +134,16 @@ namespace Trunked
 
         protected void btnTestDB_Click(object sender, EventArgs e)
         {
-            DBConnection test = new DBConnection();
-            test.ExecuteQuery();
+            try
+            {
+                DBConnection test = new DBConnection();
+                test.EstablishConection();
+                Response.Write("connect made");
+            } catch (Exception ex)
+            {
+                Response.Write("connection failed");
+            }
+
         }
 
         protected void UpdateLabelText(Label label, string newText)

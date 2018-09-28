@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
 
@@ -9,20 +10,16 @@ namespace Trunked
         public string TrunkedDevDB { get; } = ConfigurationManager.ConnectionStrings["TrunkedDevDB"].ConnectionString;
 
         //private void ExecuteQuery(string queryString)
-        public void ExecuteQuery()
+        public void EstablishConection()
         {
-            string queryString = "SELECT ID FROM dbo.TrunkedModel;";
+            //string queryString = "SELECT ID FROM dbo.TrunkedModel;";
 
-            using (SqlConnection connection = new SqlConnection(
-                TrunkedDevDB))
-            {
-                SqlCommand command = new SqlCommand(queryString, connection);
-                command.Connection.Open();
-                command.ExecuteNonQuery();
+            SqlConnection cnn = new SqlConnection(TrunkedDevDB);
 
-                //https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand?view=netframework-4.7.2
+            cnn.Open();
 
-            }
+            cnn.Close();
+
         }
     }
 }
