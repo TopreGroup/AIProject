@@ -25,6 +25,8 @@ namespace Trunked
         protected bool resultsFound;
         protected List<Dictionary<string, string>> bookDetailsList;
 
+        protected DBConnection test = new DBConnection();
+
         protected void Page_Load(object sender, EventArgs e)
         {
             customVision.Init();
@@ -136,15 +138,30 @@ namespace Trunked
         {
             try
             {
-                DBConnection test = new DBConnection();
                 test.EstablishConection();
                 Response.Write("connect made");
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Response.Write("connection failed");
             }
-
         }
+
+        //protected void btnAddtoDB_Click(object sender, EventArgs e)
+        //{
+        //    string queryString = "SELECT * FROM dbo.TrunkedModel;";
+        //    try
+        //    {
+        //        DBConnection test = new DBConnection();
+        //        //test.ExecuteQuery(queryString, cnn);
+        //        Response.Write("select success");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Response.Write("select failed");
+        //    }
+
+        //}
 
         protected void UpdateLabelText(Label label, string newText)
         {
