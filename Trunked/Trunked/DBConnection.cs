@@ -52,10 +52,13 @@ namespace Trunked
             }
         }
 
-        public void addToDatabase(string tag, string details, string ISBN, string bookTitle, string bookAuthor, string bookGenre, string bookPublisher)
-        {
-            string query = "INSERT INTO TrunkedModel (Tag, Details, ISBN, BookTitle, BookAuthor, BookGenre, BookPublisher) Values(@tag, @details, @ISBN, @bookTitle, @bookAuthor, @bookGenre, @bookPublisher)";
+        //string clothingQuery = "INSERT INTO TrunkedModel (Tag, Details, ClothingType, ClothingSubType, ClothingBrand, ClothingSize, ClothingColour) Values(@tag, @details, @clothingType, @clothingSubType, @clothingBrand, @clothingSize, @clothingColour)";
+        //string flixQuery = "INSERT INTO TrunkedModel (Tag, Details, FlixTitle, FlixGenre, FlixRating) Values(@tag, @details, @flixTitle, @flixGenre, @flixRating)";
+        //string musicQuery = "INSERT INTO TrunkedModel (Tag, Details, MusicTitle, Musician, MusicGenre) Values(@tag, @details, @musicTitle, @musician, @musicGenre)";
 
+        public void AddtoDatabase(string tag, string details, string ISBN, string bookTitle, string bookAuthor, string bookGenre, string bookPublisher)
+        { 
+            string query = "INSERT INTO TrunkedModel (Tag, Details, ISBN, BookTitle, BookAuthor, BookGenre, BookPublisher) Values(@tag, @details, @ISBN, @bookTitle, @bookAuthor, @bookGenre, @bookPublisher)";
             try
             {
                 SqlConnection connect = new SqlConnection(TrunkedDevDB);

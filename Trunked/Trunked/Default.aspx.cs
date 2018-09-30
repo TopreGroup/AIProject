@@ -60,7 +60,7 @@ namespace Trunked
                 {
                     UpdateLabelText(lblStatus, "The file could not be uploaded. The following error occured: " + ex.Message);
                 }
-                
+
                 Result result = new Result();
 
                 try
@@ -118,7 +118,7 @@ namespace Trunked
                 {
                     UpdateLabelText(lblStatus, ex + "<br />" + ex.Message + "<br />" + ex.InnerException);
                 }
-                
+
                 File.Delete(path);
             }
             else
@@ -147,21 +147,19 @@ namespace Trunked
             }
         }
 
-        //protected void btnAddtoDB_Click(object sender, EventArgs e)
-        //{
-        //    string queryString = "SELECT * FROM dbo.TrunkedModel;";
-        //    try
-        //    {
-        //        DBConnection test = new DBConnection();
-        //        //test.ExecuteQuery(queryString, cnn);
-        //        Response.Write("select success");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Response.Write("select failed");
-        //    }
+        protected void btnAddtoDB_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                //test.addToDatabase();
+                Response.Write("select success");
+            }
+            catch (Exception ex)
+            {
+                Response.Write("select failed");
+            }
 
-        //}
+        }
 
         protected void UpdateLabelText(Label label, string newText)
         {
