@@ -11,6 +11,7 @@ namespace Trunked
 {
     public partial class _Default : Page
     {
+        // This probably isn't necessary anymore since it is now resizing the images
         protected readonly string ERROR_IMAGESIZE = "BadRequestImageSizeBytes";
         protected readonly string MESSAGE_IMAGESIZE = "Image file is too large. Please choose an image smaller than 4MB";
 
@@ -21,8 +22,6 @@ namespace Trunked
         protected GoogleBooksAPI googleBooksAPI = new GoogleBooksAPI();
         protected CustomVision customVision = new CustomVision();
         BookRecognizer bookRecognizer = new BookRecognizer();
-
-        protected List<Dictionary<string, string>> booksList;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -117,6 +116,8 @@ namespace Trunked
                             cllConfidence.Text = result.Probability;
                             cllItemScanned.Text = result.Name;
 
+                            btnConfirm.Text = "Confirm: " + result.Name;
+
                             tblObjectResults.Visible = true;
                         }
                     }
@@ -169,8 +170,16 @@ namespace Trunked
 
         protected void btnConfirmObject_Click(object sender, EventArgs e)
         {
-            // Do stuff?
+            Button btnClicked = sender as Button;
 
+            string item = btnClicked.Text.Substring(9); // 9 = "Confirm: "
+
+            // Need to get itemType from item. DB.
+
+            // Do stuff?
+            PrepareManualForm(item);
+
+            // Will this be done here, or earlier?
             // customVision.TrainModel(result); 
         }
 
@@ -178,10 +187,10 @@ namespace Trunked
         {
             Button btnClicked = sender as Button;
 
-            AddToDB(btnClicked.CommandName);
+            AddBookToDB(btnClicked.CommandName);
         }
 
-        protected void AddToDB(string resultText)
+        protected void AddBookToDB(string resultText)
         {
             string[] details = resultText.Split(new string[] { "|||" }, StringSplitOptions.None);
 
@@ -204,32 +213,22 @@ namespace Trunked
 
         protected void lnkbtnManualInput_Click(object sender, EventArgs e)
         {
+            Button btnClicked = sender as Button;
+
             Reset();
-            PrepareManualForm();
+
+            string item = btnClicked.Text.Equals("Book not here?") ? "Book" : "";
+
+            PrepareManualForm(item);
         }
 
-        protected void PrepareManualForm()
+        protected void PrepareManualForm(string currentType)
         {
             pnlRecognition.Visible = false;
             pnlManual.Visible = true;
 
             // Hide all fields until user selects the type
-            rowOtherItemType.Visible = false;
-            rowOtherItemDescription.Visible = false;
-            rowOtherItemDetails.Visible = false;
-            rowISBN.Visible = false;
-            rowTitle.Visible = false;
-            rowAuthors.Visible = false;
-            rowPublisher.Visible = false;
-            rowGenre.Visible = false;
-            rowBrand.Visible = false;
-            rowClothingType.Visible = false;
-            rowClothingSubType.Visible = false;
-            rowClothingSize.Visible = false;
-            rowClothingColour.Visible = false;
-            rowRating.Visible = false;
-            rowAlbum.Visible = false;
-            rowArtistBand.Visible = false;
+            HideAllManualFields();
 
             List<string> itemTypes = new List<string>();
 
@@ -247,6 +246,12 @@ namespace Trunked
             ddlItemType.DataBind();
 
             ddlItemType.SelectedValue = "Select the type of item";
+
+            if (itemTypes.Contains(currentType))
+            {
+                ddlItemType.SelectedValue = currentType;
+                ddlItemType_SelectedIndexChanged(this, EventArgs.Empty);
+            }
         }
 
         protected void ddlItemType_SelectedIndexChanged(object sender, EventArgs e)
@@ -255,134 +260,96 @@ namespace Trunked
 
             ddlItemType.Items.Remove("Select the type of item");
 
+            HideAllManualFields();
+
             if (ddlItemType.SelectedValue.Equals("Book"))
-            {
-                // Hide all non-book related fields
-                rowOtherItemType.Visible = false;
-                rowOtherItemDescription.Visible = false;
-                rowOtherItemDetails.Visible = false;
-                rowBrand.Visible = false;
-                rowClothingType.Visible = false;
-                rowClothingSubType.Visible = false;
-                rowClothingSize.Visible = false;
-                rowClothingColour.Visible = false;
-                rowRating.Visible = false;
-                rowAlbum.Visible = false;
-                rowArtistBand.Visible = false;
-
-                // Show all book related fields
-                rowISBN.Visible = true;
-                rowTitle.Visible = true;
-                rowAuthors.Visible = true;
-                rowPublisher.Visible = true;
-                rowGenre.Visible = true;
-            }
+                PrepareBookForm();
             else if (ddlItemType.SelectedValue.Equals("Clothing"))
-            {
-                List<string> clothingTypes = new List<string>();
-
-                // Same thing with these ones as the Item Types
-                clothingTypes.Add("Select the type of clothing");
-                clothingTypes.Add("Pants");
-                clothingTypes.Add("Shirts");
-                clothingTypes.Add("Dresses/Skirts");
-                clothingTypes.Add("Jumpers/Coats/Jackets");
-                clothingTypes.Add("Shoes");
-                clothingTypes.Add("Socks");
-                clothingTypes.Add("Hats");
-                clothingTypes.Add("Jewellery");
-
-                ddlClothingType.DataSource = clothingTypes;
-                ddlClothingType.DataBind();
-
-                ddlClothingType.SelectedValue = "Select the type of clothing";
-
-                // Hide all non-clothing related fields
-                rowOtherItemType.Visible = false;
-                rowOtherItemDescription.Visible = false;
-                rowOtherItemDetails.Visible = false;
-                rowISBN.Visible = false;
-                rowTitle.Visible = false;
-                rowAuthors.Visible = false;
-                rowPublisher.Visible = false;
-                rowGenre.Visible = false;
-                rowRating.Visible = false;
-                rowAlbum.Visible = false;
-                rowArtistBand.Visible = false;
-
-                // Show all clothing related fields
-                rowBrand.Visible = true;
-                rowClothingType.Visible = true;
-                rowClothingSubType.Visible = false;
-                rowClothingSize.Visible = true;
-                rowClothingColour.Visible = true;
-            }
+                PrepareClothingForm();
             else if (ddlItemType.SelectedValue.Equals("DVD"))
-            {
-                // Hide all non-DVD related fields
-                rowISBN.Visible = false;
-                rowAuthors.Visible = false;
-                rowPublisher.Visible = false;
-                rowBrand.Visible = false;
-                rowClothingType.Visible = false;
-                rowClothingSubType.Visible = false;
-                rowClothingSize.Visible = false;
-                rowClothingColour.Visible = false;
-                rowOtherItemType.Visible = false;
-                rowOtherItemDescription.Visible = false;
-                rowOtherItemDetails.Visible = false;
-                rowAlbum.Visible = false;
-                rowArtistBand.Visible = false;
-
-                // Show all DVD related fields
-                rowTitle.Visible = true;
-                rowGenre.Visible = true;
-                rowRating.Visible = true;
-            }
+                PrepareDVDForm();
             else if (ddlItemType.SelectedValue.Equals("CD") || ddlItemType.SelectedValue.Equals("Vinyl"))
-            {
-                // Hide all non-CD related fields
-                rowISBN.Visible = false;
-                rowTitle.Visible = false;
-                rowAuthors.Visible = false;
-                rowPublisher.Visible = false;                
-                rowBrand.Visible = false;
-                rowClothingType.Visible = false;
-                rowClothingSubType.Visible = false;
-                rowClothingSize.Visible = false;
-                rowClothingColour.Visible = false;
-                rowRating.Visible = false;
-                rowOtherItemType.Visible = false;
-                rowOtherItemDescription.Visible = false;
-                rowOtherItemDetails.Visible = false;
-
-                // Show all CD related fields
-                rowAlbum.Visible = true;
-                rowArtistBand.Visible = true;
-                rowGenre.Visible = true;
-            }
+                PrepareMusicForm();
             else if (ddlItemType.SelectedValue.Equals("Other"))
-            {
-                // Hide all non-other related fields
-                rowISBN.Visible = false;
-                rowTitle.Visible = false;
-                rowAuthors.Visible = false;
-                rowPublisher.Visible = false;
-                rowGenre.Visible = false;
-                rowBrand.Visible = false;
-                rowClothingType.Visible = false;
-                rowClothingSubType.Visible = false;
-                rowClothingSize.Visible = false;
-                rowClothingColour.Visible = false;
-                rowRating.Visible = false;
-                rowAlbum.Visible = false;
-                rowArtistBand.Visible = false;
+                PrepareOtherForm();
+        }
 
-                // Show all related fields
-                rowOtherItemType.Visible = true;
-                rowOtherItemDescription.Visible = true;
-                rowOtherItemDetails.Visible = true;
-            }
+        protected void HideAllManualFields()
+        {
+            rowOtherItemType.Visible = false;
+            rowOtherItemDescription.Visible = false;
+            rowOtherItemDetails.Visible = false;
+            rowISBN.Visible = false;
+            rowTitle.Visible = false;
+            rowAuthors.Visible = false;
+            rowPublisher.Visible = false;
+            rowGenre.Visible = false;
+            rowBrand.Visible = false;
+            rowClothingType.Visible = false;
+            rowClothingSubType.Visible = false;
+            rowClothingSize.Visible = false;
+            rowClothingColour.Visible = false;
+            rowRating.Visible = false;
+            rowAlbum.Visible = false;
+            rowArtistBand.Visible = false;
+        }
+
+        protected void PrepareBookForm()
+        {
+            rowISBN.Visible = true;
+            rowTitle.Visible = true;
+            rowAuthors.Visible = true;
+            rowPublisher.Visible = true;
+            rowGenre.Visible = true;
+        }
+
+        protected void PrepareClothingForm()
+        {
+            List<string> clothingTypes = new List<string>();
+
+            // Same thing with these ones as the Item Types
+            clothingTypes.Add("Select the type of clothing");
+            clothingTypes.Add("Pants");
+            clothingTypes.Add("Shirts");
+            clothingTypes.Add("Dresses/Skirts");
+            clothingTypes.Add("Jumpers/Coats/Jackets");
+            clothingTypes.Add("Shoes");
+            clothingTypes.Add("Socks");
+            clothingTypes.Add("Hats");
+            clothingTypes.Add("Jewellery");
+
+            ddlClothingType.DataSource = clothingTypes;
+            ddlClothingType.DataBind();
+
+            ddlClothingType.SelectedValue = "Select the type of clothing";
+
+            // Show all clothing related fields
+            rowBrand.Visible = true;
+            rowClothingType.Visible = true;
+            rowClothingSubType.Visible = false;
+            rowClothingSize.Visible = true;
+            rowClothingColour.Visible = true;
+        }
+
+        protected void PrepareMusicForm()
+        {
+            rowAlbum.Visible = true;
+            rowArtistBand.Visible = true;
+            rowGenre.Visible = true;
+        }
+
+        protected void PrepareDVDForm()
+        {
+            rowTitle.Visible = true;
+            rowGenre.Visible = true;
+            rowRating.Visible = true;
+        }
+
+        protected void PrepareOtherForm()
+        {
+            rowOtherItemType.Visible = true;
+            rowOtherItemDescription.Visible = true;
+            rowOtherItemDetails.Visible = true;
         }
 
         protected void ddlClothingType_SelectedIndexChanged(object sender, EventArgs e)
@@ -536,8 +503,8 @@ namespace Trunked
         protected void txtISBN_TextChanged(object sender, EventArgs e)
         {
             if (!String.IsNullOrEmpty(txtISBN.Text))
-            {                
-                booksList = googleBooksAPI.GetBookDetailsFromISBN(txtISBN.Text);
+            {
+                List<Dictionary<string, string>> booksList = googleBooksAPI.GetBookDetailsFromISBN(txtISBN.Text);
 
                 if (booksList != null)
                 {
@@ -564,7 +531,7 @@ namespace Trunked
 
             pnlSuggestion.Visible = false;
 
-            booksList = googleBooksAPI.GetBookDetailsFromISBN(txtISBN.Text);
+            List<Dictionary<string, string>> booksList = googleBooksAPI.GetBookDetailsFromISBN(txtISBN.Text);
 
             if (booksList != null)
             {
@@ -595,7 +562,6 @@ namespace Trunked
         {
             Reset();
 
-            
             if (ddlItemType.SelectedValue.Equals("Book"))
             {
                 if (ValidateBookForm())
@@ -635,7 +601,6 @@ namespace Trunked
                     string colour = txtClothingColour.Text;
 
                     // Add to DB and show results to user
-
                 }
                 else
                     UpdateLabelText(lblStatus, "Please fill in <strong>Clothing Type</strong> and <strong>Clothing SubType</strong> at the minimum.");

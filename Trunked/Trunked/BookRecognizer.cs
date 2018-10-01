@@ -135,16 +135,18 @@ namespace Trunked
 
                     if (i == 6)
                     {
-                        Button btnConfirm = new Button();
+                        Button btnConfirmBook = new Button();
 
-                        btnConfirm.CssClass = "btn btn-primary btn-lg";
-                        btnConfirm.Text = "Confirm";
+                        btnConfirmBook.CssClass = "btn btn-primary btn-lg";
+                        btnConfirmBook.Text = "Confirm";
                         
-                        btnConfirm.CommandName = String.Format("{0}|||{1}|||{2}|||{3}|||{4}|||{5}", book["ISBN"], book["Title"], book["Author(s)"], book["Publisher"], book["PublishDate"], book["Genre"]);
+                        // Might have to do this part as a query string. But even then, might be difficult to get all book details into the js
 
-                        btnConfirm.Click += new EventHandler(def.btnConfirmBook_Click);
+                        btnConfirmBook.CommandName = String.Format("{0}|||{1}|||{2}|||{3}|||{4}|||{5}", book["ISBN"], book["Title"], book["Author(s)"], book["Publisher"], book["PublishDate"], book["Genre"]);
 
-                        cell.Controls.Add(btnConfirm);
+                        btnConfirmBook.Click += new EventHandler(def.btnConfirmBook_Click);
+
+                        cell.Controls.Add(btnConfirmBook);
                     }
                     else
                         cell.Controls.Add(new LiteralControl(cellValue));
