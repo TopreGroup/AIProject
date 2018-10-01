@@ -9,8 +9,6 @@ namespace Trunked
     {
         public string TrunkedDevDB { get; } = ConfigurationManager.ConnectionStrings["TrunkedDevDB"].ConnectionString;
 
-        private DBConnection() { }
-
         public void EstablishConection()
         {
             SqlConnection cnn = new SqlConnection(TrunkedDevDB);
