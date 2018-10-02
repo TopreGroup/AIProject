@@ -17,7 +17,7 @@ CREATE PROCEDURE [dbo].[usp_book_insert]
 AS
 BEGIN
 INSERT INTO [dbo].[TrunkedModel] (Tag, Details, ISBN, Booktitle, BookAuthor, BookPublisher)
-VALUES  (@Tag, @Details, @ISBN, @Booktitle, @BookAuthor, @BookPublisher)
+VALUES  (@Tag, @Details, @ISBN, @BookTitle, @BookAuthor, @BookPublisher)
 END
 
 GO
