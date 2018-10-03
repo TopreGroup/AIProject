@@ -25,6 +25,8 @@ namespace Trunked
         protected bool resultsFound;
         protected List<Dictionary<string, string>> bookDetailsList;
 
+        protected DBConnection test = new DBConnection();
+
         protected void Page_Load(object sender, EventArgs e)
         {
             customVision.Init();
@@ -58,7 +60,7 @@ namespace Trunked
                 {
                     UpdateLabelText(lblStatus, "The file could not be uploaded. The following error occured: " + ex.Message);
                 }
-                
+
                 Result result = new Result();
 
                 try
@@ -116,7 +118,7 @@ namespace Trunked
                 {
                     UpdateLabelText(lblStatus, ex + "<br />" + ex.Message + "<br />" + ex.InnerException);
                 }
-                
+
                 File.Delete(path);
             }
             else
@@ -130,6 +132,33 @@ namespace Trunked
             // Do stuff?
 
             // customVision.TrainModel(result); 
+        }
+
+        protected void btnTestDB_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                test.EstablishConection();
+                Response.Write("connect made");
+            }
+            catch (Exception ex)
+            {
+                Response.Write("connection failed");
+            }
+        }
+
+        protected void btnAddtoDB_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                //test.addToDatabase();
+                Response.Write("select success");
+            }
+            catch (Exception ex)
+            {
+                Response.Write("select failed");
+            }
+
         }
 
         protected void UpdateLabelText(Label label, string newText)
