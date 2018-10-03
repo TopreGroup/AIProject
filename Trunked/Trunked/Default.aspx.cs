@@ -179,11 +179,26 @@ namespace Trunked
             Button btnClicked = sender as Button;
 
             string item = btnClicked.Text.Substring(9); // 9 = "Confirm: "
+            string clothingType = "";
 
-            // e.g. Get a list of all clothing types and sub-types. If it is matches one of them, flip to that manual form
+            DBResult itemTypes = db.GetItemTypes();
 
-            // Do stuff?
-            PrepareManualForm(item);
+            if (!itemTypes.Result.Contains(item))
+            {
+                DBResult clothingTypes = db.GetClothingTypes();
+
+                if (clothingTypes.Result.Contains(item))
+                {
+                    clothingType = item;
+                    item = "Clothing";
+                }
+                else
+                    item = "Other";
+            }
+
+            PrepareManualForm(item, clothingType);
+
+            //GetImageAndTrainModel(item);
         }
 
         public void btnConfirmBook_Click(object sender, EventArgs e)
@@ -225,15 +240,7 @@ namespace Trunked
 
                 lblConfirmation.Text = String.Format("<strong>ISBN:</strong> {0}<br /><strong>Title:</strong> {1}<br /><strong>Author(s):</strong> {2}<br /><strong>Publisher:</strong> {3}<br /><strong>Publish Date:</strong> {4}<br /><strong>Genre:</strong> {5}", isbn, title, authors, publisher, publishDate, genre);
 
-                string[] images = Directory.GetFiles(Server.MapPath("~/temp/"));
-
-                string imageToTrainPath = "";
-
-                if (images.Length == 2)
-                    imageToTrainPath = images[0].EndsWith("dummy.jpg") ? images[1] : images[0];
-
-                if (!String.IsNullOrEmpty(imageToTrainPath))
-                    customVision.TrainModel(imageToTrainPath, "Book");
+                GetImageAndTrainModel("Book");
             }
             else
                 UpdateLabelText(lblStatus, "An error occurred while trying to add the book.<br />" + res.ErrorMessage);
@@ -251,10 +258,10 @@ namespace Trunked
                 item = btnClicked.Text.Equals("Book not here?") ? "Book" : "";
             }
 
-            PrepareManualForm(item);
+            PrepareManualForm(item, "");
         }
 
-        protected void PrepareManualForm(string currentType)
+        protected void PrepareManualForm(string currentType, string clothingType)
         {
             pnlRecognition.Visible = false;
             pnlManual.Visible = true;
@@ -303,6 +310,15 @@ namespace Trunked
                 {
                     ddlItemType.SelectedValue = currentType;
                     ddlItemType_SelectedIndexChanged(this, EventArgs.Empty);
+
+                    if (currentType.Equals("Clothing") && !String.IsNullOrEmpty(clothingType))
+                    {
+                        if (ddlClothingType.Items.FindByText(clothingType) != null)
+                        {
+                            ddlClothingType.SelectedValue = clothingType;
+                            ddlClothingType_SelectedIndexChanged(this, EventArgs.Empty);
+                        }
+                    }
                 }
             }
             else
@@ -841,6 +857,20 @@ namespace Trunked
         protected bool ValidateOtherForm()
         {
             return !String.IsNullOrEmpty(txtOtherItemType.Text) && !String.IsNullOrEmpty(txtOtherItemDescription.Text);
+        }
+
+        public void GetImageAndTrainModel(string tag)
+        {
+            // Images will always be saved to the temp folder
+            string[] images = Directory.GetFiles(Server.MapPath("~/temp/"));
+
+            string imageToTrainPath = "";
+
+            if (images.Length == 2)
+                imageToTrainPath = images[0].EndsWith("dummy.jpg") ? images[1] : images[0];
+
+            if (!String.IsNullOrEmpty(imageToTrainPath))
+                customVision.TrainModel(imageToTrainPath, tag);
         }
     }
 }
