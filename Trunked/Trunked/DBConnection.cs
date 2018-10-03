@@ -1,85 +1,162 @@
 ﻿using System;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
+using System.Collections.Generic;
 
 namespace Trunked
 {
+    public class DBResult
+    {
+        public int Code { get; set; }
+        public string ErrorMessage { get; set; }
+        public List<string> Result { get; set; }
+    }
+
     public class DBConnection
     {
-        public string TrunkedDevDB { get; } = ConfigurationManager.ConnectionStrings["TrunkedDevDB"].ConnectionString;
+        public string TrunkedDB { get; set; }
 
-        public void EstablishConection()
+        public DBConnection()
         {
-            SqlConnection cnn = new SqlConnection(TrunkedDevDB);
-
-            cnn.Open();
+            TrunkedDB = ConfigurationManager.ConnectionStrings["TrunkedDevDB"].ConnectionString;
         }
 
-        public int UpdateDatabase(string queryString, SqlConnection cnn)
+        public DBResult InsertBook(Dictionary<string, string> parameters)
         {
-            int update = 0;
+            DBResult result = new DBResult();
+
             try
             {
-                SqlConnection conn = new SqlConnection(TrunkedDevDB);
-                SqlCommand cmd = new SqlCommand(queryString, conn);
-                conn.Open();
-                update = cmd.ExecuteNonQuery();
-                conn.Close();
-                return update;
-            } catch (Exception ex)
-            {
-                Console.WriteLine("Exception: {0}", ex.Message);
-                return -1;
-            }
-        }
+                using (var conn = new SqlConnection(TrunkedDB))
+                using (var command = new SqlCommand("usp_insert_book", conn))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
 
-        public int UpdateDatabase(SqlCommand command)
-        {
-            int update = 0;
-            try
-            {
-                update = command.ExecuteNonQuery();
+                    command.Parameters.Add("@Tag", SqlDbType.VarChar).Value = "Book";
+                    command.Parameters.Add("@Details", SqlDbType.VarChar).Value = null;
+                    command.Parameters.Add("@ISBN", SqlDbType.VarChar).Value = parameters["ISBN"];
+                    command.Parameters.Add("@BookTitle", SqlDbType.VarChar).Value = parameters["Title"];
+                    command.Parameters.Add("@BookAuthors", SqlDbType.VarChar).Value = parameters["Authors"];
+                    command.Parameters.Add("@BookGenre", SqlDbType.VarChar).Value = parameters["Genre"];
+                    command.Parameters.Add("@BookPublisher", SqlDbType.VarChar).Value = parameters["Publisher"];
+                    command.Parameters.Add("@BookPublishDate", SqlDbType.VarChar).Value = parameters["PublishDate"];
 
-                return update;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Exception: {0}", ex.Message);
-                return -1;
-            }
-        }
-
-        //string clothingQuery = "INSERT INTO TrunkedModel (Tag, Details, ClothingType, ClothingSubType, ClothingBrand, ClothingSize, ClothingColour) Values(@tag, @details, @clothingType, @clothingSubType, @clothingBrand, @clothingSize, @clothingColour)";
-        //string flixQuery = "INSERT INTO TrunkedModel (Tag, Details, FlixTitle, FlixGenre, FlixRating) Values(@tag, @details, @flixTitle, @flixGenre, @flixRating)";
-        //string musicQuery = "INSERT INTO TrunkedModel (Tag, Details, MusicTitle, Musician, MusicGenre) Values(@tag, @details, @musicTitle, @musician, @musicGenre)";
-
-        public void AddtoDatabase(string tag, string details, string ISBN, string bookTitle, string bookAuthor, string bookGenre, string bookPublisher)
-        { 
-            string query = "INSERT INTO TrunkedModel (Tag, Details, ISBN, BookTitle, BookAuthor, BookGenre, BookPublisher) Values(@tag, @details, @ISBN, @bookTitle, @bookAuthor, @bookGenre, @bookPublisher)";
-            try
-            {
-                SqlConnection connect = new SqlConnection(TrunkedDevDB);
-                connect.Open();
-
-                SqlCommand cmd = new SqlCommand(query, connect);
-                cmd.CreateParameter();
-                cmd.Parameters.AddWithValue("tag", tag);
-                cmd.Parameters.AddWithValue("details", details);
-                cmd.Parameters.AddWithValue("ISBN", ISBN);
-                cmd.Parameters.AddWithValue("bookTitle", bookTitle);
-                cmd.Parameters.AddWithValue("bookAuthor", bookAuthor);
-                cmd.Parameters.AddWithValue("bookGenre", bookGenre);
-                cmd.Parameters.AddWithValue("bookPublisher", bookPublisher);
-
-                var affectedRow = UpdateDatabase(cmd);
-                connect.Close();
+                    conn.Open();
+                    result.Code = command.ExecuteNonQuery();
+                }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception: {0}", e.Message);
+                result.Code = -1;
+                result.ErrorMessage = e.Message;
             }
 
+            return result;
+        }
+
+        public DBResult GetItemTypes()
+        {
+            DBResult result = new DBResult();
+
+            try
+            {
+                using (var conn = new SqlConnection(TrunkedDB))
+                using (var command = new SqlCommand("usp_get_itemTypes", conn))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    conn.Open();
+
+                    List<string> itemTypes = new List<string>();
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                            itemTypes.Add(reader["Tag"].ToString());
+                    }
+
+                    result.Result = itemTypes;
+                }
+            }
+            catch (Exception e)
+            {
+                result.Code = -1;
+                result.ErrorMessage = e.Message;
+                result.Result = null;
+            }
+
+            return result;
+        }
+
+        public DBResult GetClothingTypes()
+        {
+            DBResult result = new DBResult();
+
+            try
+            {
+                using (var conn = new SqlConnection(TrunkedDB))
+                using (var command = new SqlCommand("usp_get_clothingTypes", conn))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    conn.Open();
+
+                    List<string> clothingTypes = new List<string>();
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                            clothingTypes.Add(reader["ClothingType"].ToString());
+                    }
+
+                    result.Result = clothingTypes;
+                }
+            }
+            catch (Exception e)
+            {
+                result.Code = -1;
+                result.ErrorMessage = e.Message;
+                result.Result = null;
+            }
+
+            return result;
+        }
+
+        public DBResult GetClothingSubTypes(string clothingType)
+        {
+            DBResult result = new DBResult();
+
+            try
+            {
+                using (var conn = new SqlConnection(TrunkedDB))
+                using (var command = new SqlCommand("usp_get_clothingSubTypes", conn))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add("@ClothingType", SqlDbType.VarChar).Value = clothingType;
+
+                    conn.Open();
+
+                    List<string> subTypes = new List<string>();
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                            subTypes.Add(reader["ClothingSubType"].ToString());
+                    }
+
+                    result.Result = subTypes;
+                }
+            }
+            catch (Exception e)
+            {
+                result.Code = -1;
+                result.ErrorMessage = e.Message;
+                result.Result = null;
+            }
+
+            return result;
         }
     }
 }

@@ -77,27 +77,27 @@ namespace Trunked
             }
         }
 
-        public void TrainModel(Result result, string imagePath)
+        public void TrainModel(string imagePath, string imageTag)
         {
             // Since apparently we can only have 10 iterations max
             DeleteEarliestIteration();
 
             var tags = TrainingApi.GetTags(ProjectID);
 
-            Tag bookTag = null;
+            Tag trainTag = null;
 
             foreach (Tag tag in tags)
             {
-                if (tag.Name.Equals(result.Name))
+                if (tag.Name.Equals(imageTag))
                 {
-                    bookTag = tag;
+                    trainTag = tag;
                     break;
                 }
             }
 
             using (var stream = File.Open(imagePath, FileMode.Open))
             {
-                TrainingApi.CreateImagesFromData(ProjectID, stream, new List<string>() { bookTag.Id.ToString() });
+                TrainingApi.CreateImagesFromData(ProjectID, stream, new List<string>() { trainTag.Id.ToString() });
             }
 
             var iteration = TrainingApi.TrainProject(ProjectID);
@@ -111,6 +111,8 @@ namespace Trunked
 
             iteration.IsDefault = true;
             TrainingApi.UpdateIteration(ProjectID, iteration.Id, iteration);
+
+            File.Delete(imagePath);
         }
 
         public void DeleteEarliestIteration()

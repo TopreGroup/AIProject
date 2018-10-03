@@ -6,6 +6,7 @@ using System.Web.UI.WebControls;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using ImageResizer;
+using System.Linq;
 
 namespace Trunked
 {
@@ -22,12 +23,13 @@ namespace Trunked
         protected GoogleBooksAPI googleBooksAPI = new GoogleBooksAPI();
         protected CustomVision customVision = new CustomVision();
         BookRecognizer bookRecognizer = new BookRecognizer();
+        protected DBConnection db = new DBConnection();
 
         protected string recognizedText = "";
         protected bool resultsFound;
         protected List<Dictionary<string, string>> bookDetailsList;
 
-        protected DBConnection test = new DBConnection();
+        protected string imagePath = "";
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -55,6 +57,7 @@ namespace Trunked
                     string fileName = Path.GetFileName(ctrlFileUpload.FileName);
 
                     path = Server.MapPath("~/temp/") + fileName;
+                    imagePath = path;
 
                     ctrlFileUpload.SaveAs(path);
 
@@ -91,8 +94,7 @@ namespace Trunked
                         else
                             UpdateLabelText(lblStatus, "Unable to decode barcode. Please try again.");
 
-                        // Eventually, should be able to move this from here to after this if block
-                        //customVision.TrainModel(result, path);
+                        customVision.TrainModel(path, "Barcode");
                     }
                     else if (result.Type == ResultType.Other)
                     {
@@ -142,8 +144,6 @@ namespace Trunked
                     UpdateLabelText(lblStatus, ex + "<br />" + ex.Message + "<br />" + ex.InnerException);
                     lblStatus.Visible = true;
                 }
-
-                File.Delete(path);
             }
             else
                 UpdateLabelText(lblStatus, "Please select an image before clicking <strong><i>Recognize</i></strong>");
@@ -180,13 +180,8 @@ namespace Trunked
 
             string item = btnClicked.Text.Substring(9); // 9 = "Confirm: "
 
-            // Need to get itemType from item. DB.
-
             // Do stuff?
             PrepareManualForm(item);
-
-            // Will this be done here, or earlier?
-            // customVision.TrainModel(result); 
         }
 
         public void btnConfirmBook_Click(object sender, EventArgs e)
@@ -208,22 +203,51 @@ namespace Trunked
             string publishDate = details[4];
             string genre = details[5];
 
-            // ADD TO DATABASE HERE
+            Dictionary<string, string> parameters = new Dictionary<string, string>
+            {
+                { "ISBN", isbn },
+                { "Title", title },
+                { "Authors", authors },
+                { "Genre", genre },
+                { "Publisher", publisher },
+                { "PublishDate", publishDate }
+            };
 
-            Reset();
-            pnlRecognition.Visible = false;
-            pnlConfirmation.Visible = true;
+            DBResult res = db.InsertBook(parameters);
 
-            lblConfirmation.Text = String.Format("<strong>ISBN:</strong> {0}<br /><strong>Title:</strong> {1}<br /><strong>Author(s):</strong> {2}<br /><strong>Publisher:</strong> {3}<br /><strong>Publish Date:</strong> {4}<br /><strong>Genre:</strong> {5}", isbn, title, authors, publisher, publishDate, genre);
+            if (res.Code != -1)
+            {
+                Reset();
+                pnlRecognition.Visible = false;
+                pnlConfirmation.Visible = true;
+
+                lblConfirmation.Text = String.Format("<strong>ISBN:</strong> {0}<br /><strong>Title:</strong> {1}<br /><strong>Author(s):</strong> {2}<br /><strong>Publisher:</strong> {3}<br /><strong>Publish Date:</strong> {4}<br /><strong>Genre:</strong> {5}", isbn, title, authors, publisher, publishDate, genre);
+
+                string[] images = Directory.GetFiles(Server.MapPath("~/temp/"));
+
+                string imageToTrainPath = "";
+
+                if (images.Length == 2)
+                    imageToTrainPath = images[0].EndsWith("dummy.jpg") ? images[1] : images[0];
+
+                if (!String.IsNullOrEmpty(imageToTrainPath))
+                    customVision.TrainModel(imageToTrainPath, "Book");
+            }
+            else
+                UpdateLabelText(lblStatus, "An error occurred while trying to add the book.<br />" + res.ErrorMessage);
         }
 
         protected void lnkbtnManualInput_Click(object sender, EventArgs e)
         {
-            Button btnClicked = sender as Button;
-
+            string item = "";
             Reset();
 
-            string item = btnClicked.Text.Equals("Book not here?") ? "Book" : "";
+            if (sender.GetType().Name.Equals("Button"))
+            {
+                Button btnClicked = sender as Button;
+
+                item = btnClicked.Text.Equals("Book not here?") ? "Book" : "";
+            }
 
             PrepareManualForm(item);
         }
@@ -236,28 +260,49 @@ namespace Trunked
             // Hide all fields until user selects the type
             HideAllManualFields();
 
-            List<string> itemTypes = new List<string>();
-
-            // Maybe do a DB call and get a list of types/categories and add them to the list instead of hardcoding here.
-            // That will make it difficult further down in "ddlItemType_SelectedIndexChanged()"
-            itemTypes.Add("Select the type of item");
-            itemTypes.Add("Book");
-            itemTypes.Add("Clothing");
-            itemTypes.Add("DVD");
-            itemTypes.Add("CD");
-            itemTypes.Add("Vinyl");
-            itemTypes.Add("Other");
-
-            ddlItemType.DataSource = itemTypes;
-            ddlItemType.DataBind();
-
-            ddlItemType.SelectedValue = "Select the type of item";
-
-            if (itemTypes.Contains(currentType))
+            List<string> itemTypes = new List<string>()
             {
-                ddlItemType.SelectedValue = currentType;
-                ddlItemType_SelectedIndexChanged(this, EventArgs.Empty);
+                "Select the type of item"
+            };
+
+            DBResult dbItemTypes = db.GetItemTypes();
+
+            if (dbItemTypes.Code != -1)
+            {
+                foreach (string itemType in dbItemTypes.Result)
+                    itemTypes.Add(itemType);
+
+                // For now, we'll have these until they are added to the DB
+                if (!itemTypes.Contains("Book"))
+                    itemTypes.Add("Book");
+
+                if (!itemTypes.Contains("Clothing"))
+                    itemTypes.Add("Clothing");
+
+                if (!itemTypes.Contains("DVD"))
+                    itemTypes.Add("DVD");
+
+                if (!itemTypes.Contains("CD"))
+                    itemTypes.Add("CD");
+
+                if (!itemTypes.Contains("Vinyl"))
+                    itemTypes.Add("Vinyl");
+
+                itemTypes.Add("Other");
+
+                ddlItemType.DataSource = itemTypes;
+                ddlItemType.DataBind();
+
+                ddlItemType.SelectedValue = "Select the type of item";
+
+                if (itemTypes.Contains(currentType))
+                {
+                    ddlItemType.SelectedValue = currentType;
+                    ddlItemType_SelectedIndexChanged(this, EventArgs.Empty);
+                }
             }
+            else
+                UpdateLabelText(lblStatus, "An error occurred while trying to get the item types.<br />" + dbItemTypes.ErrorMessage);
         }
 
         protected void ddlItemType_SelectedIndexChanged(object sender, EventArgs e)
@@ -288,8 +333,9 @@ namespace Trunked
             rowISBN.Visible = false;
             rowTitle.Visible = false;
             rowAuthors.Visible = false;
-            rowPublisher.Visible = false;
             rowGenre.Visible = false;
+            rowPublisher.Visible = false;
+            rowPublishDate.Visible = false;
             rowBrand.Visible = false;
             rowClothingType.Visible = false;
             rowClothingSubType.Visible = false;
@@ -305,36 +351,76 @@ namespace Trunked
             rowISBN.Visible = true;
             rowTitle.Visible = true;
             rowAuthors.Visible = true;
-            rowPublisher.Visible = true;
             rowGenre.Visible = true;
+            rowPublisher.Visible = true;
+            rowPublishDate.Visible = true;
         }
 
         protected void PrepareClothingForm()
         {
-            List<string> clothingTypes = new List<string>();
+            List<string> clothingTypes = new List<string>()
+            {
+                "Select the type of clothing"
+            };
 
-            // Same thing with these ones as the Item Types
-            clothingTypes.Add("Select the type of clothing");
-            clothingTypes.Add("Pants");
-            clothingTypes.Add("Shirts");
-            clothingTypes.Add("Dresses/Skirts");
-            clothingTypes.Add("Jumpers/Coats/Jackets");
-            clothingTypes.Add("Shoes");
-            clothingTypes.Add("Socks");
-            clothingTypes.Add("Hats");
-            clothingTypes.Add("Jewellery");
+            DBResult dbClothingTypes = db.GetClothingTypes();
 
-            ddlClothingType.DataSource = clothingTypes;
-            ddlClothingType.DataBind();
+            if (dbClothingTypes.Code != -1)
+            {
+                foreach (string clothingType in dbClothingTypes.Result)
+                    clothingTypes.Add(clothingType);
 
-            ddlClothingType.SelectedValue = "Select the type of clothing";
+                // For now, we'll have these until they are added to the DB
+                if (!clothingTypes.Contains("Pants"))
+                    clothingTypes.Add("Pants");
 
-            // Show all clothing related fields
-            rowBrand.Visible = true;
-            rowClothingType.Visible = true;
-            rowClothingSubType.Visible = false;
-            rowClothingSize.Visible = true;
-            rowClothingColour.Visible = true;
+                if (!clothingTypes.Contains("Shirts"))
+                    clothingTypes.Add("Shirts");
+
+                if (!clothingTypes.Contains("Dresses"))
+                    clothingTypes.Add("Dresses");
+
+                if (!clothingTypes.Contains("Skirts"))
+                    clothingTypes.Add("Skirts");
+
+                if (!clothingTypes.Contains("Jumpers"))
+                    clothingTypes.Add("Jumpers");
+
+                if (!clothingTypes.Contains("Coats"))
+                    clothingTypes.Add("Coats");
+
+                if (!clothingTypes.Contains("Jackets"))
+                    clothingTypes.Add("Jackets");
+
+                if (!clothingTypes.Contains("Shoes"))
+                    clothingTypes.Add("Shoes");
+
+                if (!clothingTypes.Contains("Socks"))
+                    clothingTypes.Add("Socks");
+
+                if (!clothingTypes.Contains("Hats"))
+                    clothingTypes.Add("Hats");
+
+                if (!clothingTypes.Contains("Jewellery"))
+                    clothingTypes.Add("Jewellery");
+
+                // Need to do an "other" flow for adding clothing types and sub-types
+                clothingTypes.Add("Other");
+
+                ddlClothingType.DataSource = clothingTypes;
+                ddlClothingType.DataBind();
+
+                ddlClothingType.SelectedValue = "Select the type of clothing";
+
+                // Show all clothing related fields
+                rowBrand.Visible = true;
+                rowClothingType.Visible = true;
+                rowClothingSubType.Visible = false;
+                rowClothingSize.Visible = true;
+                rowClothingColour.Visible = true;
+            }
+            else
+                UpdateLabelText(lblStatus, "An error occurred while trying to get the clothing types.<br />" + dbClothingTypes.ErrorMessage);
         }
 
         protected void PrepareMusicForm()
@@ -364,141 +450,104 @@ namespace Trunked
 
             rowClothingSubType.Visible = true;
 
-            // Yep... and same thing with all of these ones
-
-            if (ddlClothingType.SelectedValue.Equals("Pants"))
+            List<string> subTypes = new List<string>()
             {
-                List<string> pantsSubTypes = new List<string>();
+                "Select the most suitable subtype"
+            };
 
-                pantsSubTypes.Add("Select the most suitable subtype");
-                pantsSubTypes.Add("Jeans");
-                pantsSubTypes.Add("Trousers");
-                pantsSubTypes.Add("Tracksuit Pants");
-                pantsSubTypes.Add("Shorts");
-                pantsSubTypes.Add("Short Shorts");
-                pantsSubTypes.Add("Leggings");
+            DBResult dbSubTypes = db.GetClothingSubTypes(ddlClothingType.SelectedValue);
 
-                ddlClothingSubType.DataSource = pantsSubTypes;
-            }
-            else if (ddlClothingType.SelectedValue.Equals("Shirts"))
+            if (dbSubTypes.Code != -1)
             {
-                List<string> shirtsSubTypes = new List<string>();
+                foreach (string subType in dbSubTypes.Result)
+                    subTypes.Add(subType);
 
-                shirtsSubTypes.Add("Select the most suitable subtype");
-                shirtsSubTypes.Add("T-Shirt");
-                shirtsSubTypes.Add("Longsleeve T-Shirt");
-                shirtsSubTypes.Add("Business shirt");
-                shirtsSubTypes.Add("Polo");
-                shirtsSubTypes.Add("Singlet");
-                shirtsSubTypes.Add("Tanktop");
+                // Again, only keeping these here until the DB has got some values in there
+                if (ddlClothingType.SelectedValue.Equals("Pants"))
+                {
+                    subTypes.Add("Jeans");
+                    subTypes.Add("Trousers");
+                    subTypes.Add("Tracksuit Pants");
+                    subTypes.Add("Shorts");
+                    subTypes.Add("Short Shorts");
+                    subTypes.Add("Leggings");
+                }
+                else if (ddlClothingType.SelectedValue.Equals("Shirts"))
+                {
+                    subTypes.Add("T-Shirt");
+                    subTypes.Add("Longsleeve T-Shirt");
+                    subTypes.Add("Business shirt");
+                    subTypes.Add("Polo");
+                    subTypes.Add("Singlet");
+                    subTypes.Add("Tanktop");
+                }
+                else if (ddlClothingType.SelectedValue.Equals("Dresses/Skirts"))
+                {
+                    subTypes.Add("Dress");
+                    subTypes.Add("Sundress");
+                    subTypes.Add("Maxi");
+                    subTypes.Add("Wedding Dress");
+                    subTypes.Add("A-Line Skirt");
+                    subTypes.Add("Pencil Skirt");
+                }
+                else if (ddlClothingType.SelectedValue.Equals("Jumpers/Coats/Jackets"))
+                {
+                    subTypes.Add("Hoodie");
+                    subTypes.Add("Sweater");
+                    subTypes.Add("Windcheater");
+                    subTypes.Add("Raincoat");
+                    subTypes.Add("Leather Jacket");
+                    subTypes.Add("Suit Jacket");
+                    subTypes.Add("Trenchcoat");
+                    subTypes.Add("Duster");
+                }
+                else if (ddlClothingType.SelectedValue.Equals("Shoes"))
+                {
+                    subTypes.Add("Sneakers");
+                    subTypes.Add("Heels");
+                    subTypes.Add("Boots");
+                    subTypes.Add("Wedges");
+                    subTypes.Add("Clogs");
+                    subTypes.Add("Loafers");
+                    subTypes.Add("Slippers");
+                }
+                else if (ddlClothingType.SelectedValue.Equals("Socks"))
+                {
+                    subTypes.Add("Normal Socks");
+                    subTypes.Add("Ankle Socks");
+                    subTypes.Add("Thigh-High");
+                    subTypes.Add("Toe Socks");
+                }
+                else if (ddlClothingType.SelectedValue.Equals("Hats"))
+                {
+                    subTypes.Add("Baseball Cap");
+                    subTypes.Add("Bowler");
+                    subTypes.Add("Bucket");
+                    subTypes.Add("Sun");
+                    subTypes.Add("Beanie");
+                    subTypes.Add("Cowboy");
+                    subTypes.Add("Beret");
+                }
+                else if (ddlClothingType.SelectedValue.Equals("Jewellery"))
+                {
+                    subTypes.Add("Earrings");
+                    subTypes.Add("Necklace");
+                    subTypes.Add("Anklet");
+                    subTypes.Add("Cufflink");
+                    subTypes.Add("Chain");
+                    subTypes.Add("Pin");
+                }
 
-                ddlClothingSubType.DataSource = shirtsSubTypes;
+                // Need to do an "other" flow for adding clothing types and sub-types
+                subTypes.Add("Other");
+
+                ddlClothingSubType.DataSource = subTypes;
+                ddlClothingSubType.DataBind();
+
+                ddlClothingSubType.SelectedValue = "Select the most suitable subtype";
             }
-            else if (ddlClothingType.SelectedValue.Equals("Dresses/Skirts"))
-            {
-                List<string> dressesSkirtsSubTypes = new List<string>();
-
-                dressesSkirtsSubTypes.Add("Select the most suitable subtype");
-                dressesSkirtsSubTypes.Add("Dress");
-                dressesSkirtsSubTypes.Add("Sundress");
-                dressesSkirtsSubTypes.Add("Maxi");
-                dressesSkirtsSubTypes.Add("Wedding Dress");
-                dressesSkirtsSubTypes.Add("A-Line Skirt");
-                dressesSkirtsSubTypes.Add("Pencil Skirt");
-
-                ddlClothingSubType.DataSource = dressesSkirtsSubTypes;
-            }
-            else if (ddlClothingType.SelectedValue.Equals("Jumpers/Coats/Jackets"))
-            {
-                List<string> jumpersCoatsJacketsSubTypes = new List<string>();
-
-                jumpersCoatsJacketsSubTypes.Add("Select the most suitable subtype");
-                jumpersCoatsJacketsSubTypes.Add("Hoodie");
-                jumpersCoatsJacketsSubTypes.Add("Sweater");
-                jumpersCoatsJacketsSubTypes.Add("Windcheater");
-                jumpersCoatsJacketsSubTypes.Add("Raincoat");
-                jumpersCoatsJacketsSubTypes.Add("Leather Jacket");
-                jumpersCoatsJacketsSubTypes.Add("Suit Jacket");
-                jumpersCoatsJacketsSubTypes.Add("Trenchcoat");
-                jumpersCoatsJacketsSubTypes.Add("Duster");
-
-                ddlClothingSubType.DataSource = jumpersCoatsJacketsSubTypes;
-            }
-            else if (ddlClothingType.SelectedValue.Equals("Shoes"))
-            {
-                List<string> shoesSubTypes = new List<string>();
-
-                shoesSubTypes.Add("Select the most suitable subtype");
-                shoesSubTypes.Add("Sneakers");
-                shoesSubTypes.Add("Heels");
-                shoesSubTypes.Add("Boots");
-                shoesSubTypes.Add("Wedges");
-                shoesSubTypes.Add("Clogs");
-                shoesSubTypes.Add("Loafers");
-                shoesSubTypes.Add("Slippers");
-
-                ddlClothingSubType.DataSource = shoesSubTypes;
-            }
-            else if (ddlClothingType.SelectedValue.Equals("Shoes"))
-            {
-                List<string> shoesSubTypes = new List<string>();
-
-                shoesSubTypes.Add("Select the most suitable subtype");
-                shoesSubTypes.Add("Sneakers");
-                shoesSubTypes.Add("Heels");
-                shoesSubTypes.Add("Boots");
-                shoesSubTypes.Add("Wedges");
-                shoesSubTypes.Add("Clogs");
-                shoesSubTypes.Add("Loafers");
-                shoesSubTypes.Add("Slippers");
-
-                ddlClothingSubType.DataSource = shoesSubTypes;
-            }
-            else if (ddlClothingType.SelectedValue.Equals("Socks"))
-            {
-                List<string> socksSubTypes = new List<string>();
-
-                socksSubTypes.Add("Select the most suitable subtype");
-                socksSubTypes.Add("Normal Socks");
-                socksSubTypes.Add("Ankle Socks");
-                socksSubTypes.Add("Thigh-High");
-                socksSubTypes.Add("Toe Socks");
-
-                ddlClothingSubType.DataSource = socksSubTypes;
-            }
-            else if (ddlClothingType.SelectedValue.Equals("Hats"))
-            {
-                List<string> hatsSubTypes = new List<string>();
-
-                hatsSubTypes.Add("Select the most suitable subtype");
-                hatsSubTypes.Add("Baseball Cap");
-                hatsSubTypes.Add("Bowler");
-                hatsSubTypes.Add("Bucket");
-                hatsSubTypes.Add("Sun");
-                hatsSubTypes.Add("Beanie");
-                hatsSubTypes.Add("Cowboy");
-                hatsSubTypes.Add("Beret");
-
-                ddlClothingSubType.DataSource = hatsSubTypes;
-            }
-            else if (ddlClothingType.SelectedValue.Equals("Jewellery"))
-            {
-                List<string> jewellerySubTypes = new List<string>();
-
-                jewellerySubTypes.Add("Select the most suitable subtype");
-                jewellerySubTypes.Add("Earrings");
-                jewellerySubTypes.Add("Necklace");
-                jewellerySubTypes.Add("Anklet");
-                jewellerySubTypes.Add("Cufflink");
-                jewellerySubTypes.Add("Chain");
-                jewellerySubTypes.Add("Pin");
-
-                ddlClothingSubType.DataSource = jewellerySubTypes;
-            }
-
-            ddlClothingSubType.DataBind();
-
-            ddlClothingSubType.SelectedValue = "Select the most suitable subtype";
+            else
+                UpdateLabelText(lblStatus, "An error occurred while trying to get the clothing sub-types.<br />" + dbSubTypes.ErrorMessage);
         }
 
         protected void ddlClothingSubType_SelectedIndexChanged(object sender, EventArgs e)
@@ -550,8 +599,9 @@ namespace Trunked
                     {
                         txtTitle.Text = book["Title"];
                         txtAuthors.Text = currentAuthors;
-                        txtPublisher.Text = book["Publisher"];
                         txtGenre.Text = book["Genre"];
+                        txtPublisher.Text = book["Publisher"];
+                        txtPublishDate.Text = book["PublishDate"];
 
                         break;
                     }
@@ -572,23 +622,36 @@ namespace Trunked
             {
                 if (ValidateBookForm())
                 {
-                    pnlManual.Visible = false;
-                    //pnlConfirmation.Visible = true;
-
                     string isbn = txtISBN.Text;
                     string title = txtTitle.Text;
                     string authors = txtAuthors.Text;
                     string publisher = txtPublisher.Text;
+                    string publishDate = txtPublishDate.Text;
                     string genre = txtGenre.Text;
                     string type = ddlItemType.SelectedValue;
 
-                    // Maybe don't bother with getting results from the API. If they enter manually we should assume it's a real book?
-                    List<Dictionary<string, string>> books = googleBooksAPI.GetBookDetailsFromManualForm(isbn, title, authors, publisher);
+                    Dictionary<string, string> parameters = new Dictionary<string, string>()
+                    {
+                        { "ISBN", isbn },
+                        { "Title", title },
+                        { "Authors", authors },
+                        { "Genre", genre },
+                        { "Publisher", publisher },
+                        { "PublishDate", publishDate }
+                    };
 
-                    bookRecognizer.FormatBookResultsForConfirmation(books, tblResults, this);
+                    DBResult res = db.InsertBook(parameters);
 
-                    // Either do a confirmation page or add to DB and then show results to user ??
+                    if (res.Code != -1)
+                    {
+                        Reset();
+                        pnlManual.Visible = false;
+                        pnlConfirmation.Visible = true;
 
+                        lblConfirmation.Text = String.Format("<strong>ISBN:</strong> {0}<br /><strong>Title:</strong> {1}<br /><strong>Author(s):</strong> {2}<br /><strong>Publisher:</strong> {3}<br /><strong>Publish Date:</strong> {4}<br /><strong>Genre:</strong> {5}", isbn, title, authors, publisher, publishDate, genre);
+                    }
+                    else
+                        UpdateLabelText(lblStatus, "An error occurred while trying to add the book.<br />" + res.ErrorMessage);
                 }
                 else
                     UpdateLabelText(lblStatus, "Please fill in <strong>Title</strong> and <strong>Author(s)</strong> at the minimum.");

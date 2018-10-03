@@ -25,8 +25,6 @@
 			    <img class="imgLoading" src="Content/Images/Loading.gif" style="width:30px;display:none;"/>
 		    </p>	
 
-            <%--<asp:Button ID="TEST" runat="server" OnClick="lnkbtnManualInput_Click" Text="TEST" />--%>
-            
             <asp:Panel ID="pnlRecognizedAs" runat="server" Visible="false" >
                 <p>
                     <asp:Label ID="lblRecognizedAs" runat="server" />
@@ -114,6 +112,12 @@
                         <asp:TableCell Text="Publisher:" CssClass="tblCell heading" />
                         <asp:TableCell>
                             <asp:TextBox ID="txtPublisher" placeholder="Publisher" runat="server" style="max-width: 500px !important;" Width="500" />
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowPublishDate">
+                        <asp:TableCell Text="Publish Date:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:TextBox ID="txtPublishDate" placeholder="Publish Date" runat="server" style="max-width: 500px !important;" Width="500" />
                         </asp:TableCell>
                     </asp:TableRow>
                     <asp:TableRow ID="rowArtistBand" >
