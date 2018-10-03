@@ -23,6 +23,12 @@ namespace Trunked
         protected CustomVision customVision = new CustomVision();
         BookRecognizer bookRecognizer = new BookRecognizer();
 
+        protected string recognizedText = "";
+        protected bool resultsFound;
+        protected List<Dictionary<string, string>> bookDetailsList;
+
+        protected DBConnection test = new DBConnection();
+
         protected void Page_Load(object sender, EventArgs e)
         {
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Server.MapPath("~/Content/") + "GoogleServiceAccount.json");
@@ -59,7 +65,7 @@ namespace Trunked
                 {
                     UpdateLabelText(lblStatus, "The file could not be uploaded. The following error occured: " + ex.Message);
                 }
-                
+
                 Result result = new Result();
 
                 try
