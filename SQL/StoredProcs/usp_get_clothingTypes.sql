@@ -5,7 +5,7 @@ GO
 CREATE PROCEDURE [dbo].[usp_get_clothingTypes]
 AS
 BEGIN
-	SELECT DISTINCT ClothingType FROM [dbo].[TrunkedModel]
+	SELECT DISTINCT ClothingType FROM [dbo].[TrunkedInventory]
 END
 
 GO

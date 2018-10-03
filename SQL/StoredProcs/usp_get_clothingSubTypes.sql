@@ -9,7 +9,7 @@ CREATE PROCEDURE [dbo].[usp_get_clothingSubTypes]
 AS
 BEGIN
 	SELECT DISTINCT ClothingSubType 
-	  FROM [dbo].[TrunkedModel]
+	  FROM [dbo].[TrunkedInventory]
 	 WHERE ClothingType = @ClothingType
 END
 

@@ -5,7 +5,7 @@ GO
 CREATE PROCEDURE [dbo].[usp_insert_clothing]
 (
 	@Tag				VARCHAR(20), 
-	@Details			VARCHAR(100), 
+	@Details			VARCHAR(100) = NULL, 
 	@ClothingType		VARCHAR(100), 
 	@ClothingSubType	VARCHAR(100), 
 	@ClothingBrand		VARCHAR(100), 
@@ -14,7 +14,7 @@ CREATE PROCEDURE [dbo].[usp_insert_clothing]
 )
 AS
 BEGIN
-	INSERT INTO [dbo].[TrunkedModel]
+	INSERT INTO [dbo].[TrunkedInventory]
 	(
 		Tag, 
 		Details, 

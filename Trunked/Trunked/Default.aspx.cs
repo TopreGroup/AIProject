@@ -180,6 +180,8 @@ namespace Trunked
 
             string item = btnClicked.Text.Substring(9); // 9 = "Confirm: "
 
+            // e.g. Get a list of all clothing types and sub-types. If it is matches one of them, flip to that manual form
+
             // Do stuff?
             PrepareManualForm(item);
         }
@@ -269,6 +271,8 @@ namespace Trunked
 
             if (dbItemTypes.Code != -1)
             {
+                dbItemTypes.Result = dbItemTypes.Result.Where(s => !String.IsNullOrEmpty(s)).ToList();
+
                 foreach (string itemType in dbItemTypes.Result)
                     itemTypes.Add(itemType);
 
@@ -342,7 +346,6 @@ namespace Trunked
             rowClothingSize.Visible = false;
             rowClothingColour.Visible = false;
             rowRating.Visible = false;
-            rowAlbum.Visible = false;
             rowArtistBand.Visible = false;
         }
 
@@ -367,6 +370,8 @@ namespace Trunked
 
             if (dbClothingTypes.Code != -1)
             {
+                dbClothingTypes.Result = dbClothingTypes.Result.Where(s => !String.IsNullOrEmpty(s)).ToList();
+
                 foreach (string clothingType in dbClothingTypes.Result)
                     clothingTypes.Add(clothingType);
 
@@ -404,7 +409,6 @@ namespace Trunked
                 if (!clothingTypes.Contains("Jewellery"))
                     clothingTypes.Add("Jewellery");
 
-                // Need to do an "other" flow for adding clothing types and sub-types
                 clothingTypes.Add("Other");
 
                 ddlClothingType.DataSource = clothingTypes;
@@ -425,7 +429,7 @@ namespace Trunked
 
         protected void PrepareMusicForm()
         {
-            rowAlbum.Visible = true;
+            rowTitle.Visible = true;
             rowArtistBand.Visible = true;
             rowGenre.Visible = true;
         }
@@ -450,109 +454,132 @@ namespace Trunked
 
             rowClothingSubType.Visible = true;
 
-            List<string> subTypes = new List<string>()
+            if (!ddlClothingType.SelectedValue.Equals("Other"))
             {
-                "Select the most suitable subtype"
-            };
+                ddlClothingSubType.Visible = true;
+                lblNewLine.Visible = false;
+                txtOtherClothingType.Visible = false;
+                txtOtherClothingSubType.Visible = false;
 
-            DBResult dbSubTypes = db.GetClothingSubTypes(ddlClothingType.SelectedValue);
+                List<string> subTypes = new List<string>()
+                {
+                    "Select the most suitable subtype"
+                };
 
-            if (dbSubTypes.Code != -1)
-            {
-                foreach (string subType in dbSubTypes.Result)
-                    subTypes.Add(subType);
+                DBResult dbSubTypes = db.GetClothingSubTypes(ddlClothingType.SelectedValue);
 
-                // Again, only keeping these here until the DB has got some values in there
-                if (ddlClothingType.SelectedValue.Equals("Pants"))
+                if (dbSubTypes.Code != -1)
                 {
-                    subTypes.Add("Jeans");
-                    subTypes.Add("Trousers");
-                    subTypes.Add("Tracksuit Pants");
-                    subTypes.Add("Shorts");
-                    subTypes.Add("Short Shorts");
-                    subTypes.Add("Leggings");
-                }
-                else if (ddlClothingType.SelectedValue.Equals("Shirts"))
-                {
-                    subTypes.Add("T-Shirt");
-                    subTypes.Add("Longsleeve T-Shirt");
-                    subTypes.Add("Business shirt");
-                    subTypes.Add("Polo");
-                    subTypes.Add("Singlet");
-                    subTypes.Add("Tanktop");
-                }
-                else if (ddlClothingType.SelectedValue.Equals("Dresses/Skirts"))
-                {
-                    subTypes.Add("Dress");
-                    subTypes.Add("Sundress");
-                    subTypes.Add("Maxi");
-                    subTypes.Add("Wedding Dress");
-                    subTypes.Add("A-Line Skirt");
-                    subTypes.Add("Pencil Skirt");
-                }
-                else if (ddlClothingType.SelectedValue.Equals("Jumpers/Coats/Jackets"))
-                {
-                    subTypes.Add("Hoodie");
-                    subTypes.Add("Sweater");
-                    subTypes.Add("Windcheater");
-                    subTypes.Add("Raincoat");
-                    subTypes.Add("Leather Jacket");
-                    subTypes.Add("Suit Jacket");
-                    subTypes.Add("Trenchcoat");
-                    subTypes.Add("Duster");
-                }
-                else if (ddlClothingType.SelectedValue.Equals("Shoes"))
-                {
-                    subTypes.Add("Sneakers");
-                    subTypes.Add("Heels");
-                    subTypes.Add("Boots");
-                    subTypes.Add("Wedges");
-                    subTypes.Add("Clogs");
-                    subTypes.Add("Loafers");
-                    subTypes.Add("Slippers");
-                }
-                else if (ddlClothingType.SelectedValue.Equals("Socks"))
-                {
-                    subTypes.Add("Normal Socks");
-                    subTypes.Add("Ankle Socks");
-                    subTypes.Add("Thigh-High");
-                    subTypes.Add("Toe Socks");
-                }
-                else if (ddlClothingType.SelectedValue.Equals("Hats"))
-                {
-                    subTypes.Add("Baseball Cap");
-                    subTypes.Add("Bowler");
-                    subTypes.Add("Bucket");
-                    subTypes.Add("Sun");
-                    subTypes.Add("Beanie");
-                    subTypes.Add("Cowboy");
-                    subTypes.Add("Beret");
-                }
-                else if (ddlClothingType.SelectedValue.Equals("Jewellery"))
-                {
-                    subTypes.Add("Earrings");
-                    subTypes.Add("Necklace");
-                    subTypes.Add("Anklet");
-                    subTypes.Add("Cufflink");
-                    subTypes.Add("Chain");
-                    subTypes.Add("Pin");
-                }
+                    dbSubTypes.Result = dbSubTypes.Result.Where(s => !String.IsNullOrEmpty(s)).ToList();
 
-                // Need to do an "other" flow for adding clothing types and sub-types
-                subTypes.Add("Other");
+                    foreach (string subType in dbSubTypes.Result)
+                        subTypes.Add(subType);
 
-                ddlClothingSubType.DataSource = subTypes;
-                ddlClothingSubType.DataBind();
+                    // Again, only keeping these here until the DB has got some values in there
+                    if (ddlClothingType.SelectedValue.Equals("Pants"))
+                    {
+                        subTypes.Add("Jeans");
+                        subTypes.Add("Trousers");
+                        subTypes.Add("Tracksuit Pants");
+                        subTypes.Add("Shorts");
+                        subTypes.Add("Short Shorts");
+                        subTypes.Add("Leggings");
+                    }
+                    else if (ddlClothingType.SelectedValue.Equals("Shirts"))
+                    {
+                        subTypes.Add("T-Shirt");
+                        subTypes.Add("Longsleeve T-Shirt");
+                        subTypes.Add("Business shirt");
+                        subTypes.Add("Polo");
+                        subTypes.Add("Singlet");
+                        subTypes.Add("Tanktop");
+                    }
+                    else if (ddlClothingType.SelectedValue.Equals("Dresses/Skirts"))
+                    {
+                        subTypes.Add("Dress");
+                        subTypes.Add("Sundress");
+                        subTypes.Add("Maxi");
+                        subTypes.Add("Wedding Dress");
+                        subTypes.Add("A-Line Skirt");
+                        subTypes.Add("Pencil Skirt");
+                    }
+                    else if (ddlClothingType.SelectedValue.Equals("Jumpers/Coats/Jackets"))
+                    {
+                        subTypes.Add("Hoodie");
+                        subTypes.Add("Sweater");
+                        subTypes.Add("Windcheater");
+                        subTypes.Add("Raincoat");
+                        subTypes.Add("Leather Jacket");
+                        subTypes.Add("Suit Jacket");
+                        subTypes.Add("Trenchcoat");
+                        subTypes.Add("Duster");
+                    }
+                    else if (ddlClothingType.SelectedValue.Equals("Shoes"))
+                    {
+                        subTypes.Add("Sneakers");
+                        subTypes.Add("Heels");
+                        subTypes.Add("Boots");
+                        subTypes.Add("Wedges");
+                        subTypes.Add("Clogs");
+                        subTypes.Add("Loafers");
+                        subTypes.Add("Slippers");
+                    }
+                    else if (ddlClothingType.SelectedValue.Equals("Socks"))
+                    {
+                        subTypes.Add("Normal Socks");
+                        subTypes.Add("Ankle Socks");
+                        subTypes.Add("Thigh-High");
+                        subTypes.Add("Toe Socks");
+                    }
+                    else if (ddlClothingType.SelectedValue.Equals("Hats"))
+                    {
+                        subTypes.Add("Baseball Cap");
+                        subTypes.Add("Bowler");
+                        subTypes.Add("Bucket");
+                        subTypes.Add("Sun");
+                        subTypes.Add("Beanie");
+                        subTypes.Add("Cowboy");
+                        subTypes.Add("Beret");
+                    }
+                    else if (ddlClothingType.SelectedValue.Equals("Jewellery"))
+                    {
+                        subTypes.Add("Earrings");
+                        subTypes.Add("Necklace");
+                        subTypes.Add("Anklet");
+                        subTypes.Add("Cufflink");
+                        subTypes.Add("Chain");
+                        subTypes.Add("Pin");
+                    }
 
-                ddlClothingSubType.SelectedValue = "Select the most suitable subtype";
+                    subTypes.Add("Other");
+
+                    ddlClothingSubType.DataSource = subTypes;
+                    ddlClothingSubType.DataBind();
+
+                    ddlClothingSubType.SelectedValue = "Select the most suitable subtype";
+                }
+                else
+                    UpdateLabelText(lblStatus, "An error occurred while trying to get the clothing sub-types.<br />" + dbSubTypes.ErrorMessage);
             }
             else
-                UpdateLabelText(lblStatus, "An error occurred while trying to get the clothing sub-types.<br />" + dbSubTypes.ErrorMessage);
+            {
+                lblNewLine.Visible = true;
+                rowClothingSubType.Visible = true;
+                ddlClothingSubType.Visible = false;
+                txtOtherClothingType.Visible = true;
+                txtOtherClothingSubType.Visible = true;
+            }
         }
 
         protected void ddlClothingSubType_SelectedIndexChanged(object sender, EventArgs e)
         {
             ddlClothingSubType.Items.Remove("Select the most suitable subtype");
+
+            if (ddlClothingSubType.SelectedValue.Equals("Other"))
+            {
+                lblNewLineSub.Visible = true;
+                txtOtherClothingSubType.Visible = true;
+            }
         }
 
         protected void txtISBN_TextChanged(object sender, EventArgs e)
@@ -660,16 +687,33 @@ namespace Trunked
             {
                 if (ValidateClothingForm())
                 {
-                    pnlManual.Visible = false;
-                    pnlConfirmation.Visible = true;
-
-                    string brand = txtBrand.Text;
                     string type = ddlClothingType.SelectedValue;
                     string subType = ddlClothingSubType.SelectedValue;
+                    string brand = txtBrand.Text;
                     string size = txtClothingSize.Text;
                     string colour = txtClothingColour.Text;
 
-                    // Add to DB and show results to user
+                    Dictionary<string, string> parameters = new Dictionary<string, string>()
+                    {
+                        { "Type", type },
+                        { "SubType", subType },
+                        { "Brand", brand },
+                        { "Size", size },
+                        { "Colour", colour }
+                    };
+
+                    DBResult res = db.InsertClothing(parameters);
+
+                    if (res.Code != -1)
+                    {
+                        Reset();
+                        pnlManual.Visible = false;
+                        pnlConfirmation.Visible = true;
+
+                        lblConfirmation.Text = String.Format("<strong>Type:</strong> {0}<br /><strong>SubType:</strong> {1}<br /><strong>Brand:</strong> {2}<br /><strong>Size:</strong> {3}<br /><strong>Colour:</strong> {4}", type, subType, brand, size, colour);
+                    }
+                    else
+                        UpdateLabelText(lblStatus, "An error occurred while trying to add the item of clothing.<br />" + res.ErrorMessage);
                 }
                 else
                     UpdateLabelText(lblStatus, "Please fill in <strong>Clothing Type</strong> and <strong>Clothing SubType</strong> at the minimum.");
@@ -678,32 +722,60 @@ namespace Trunked
             {
                 if (ValidateDVDForm())
                 {
-                    pnlManual.Visible = false;
-                    pnlConfirmation.Visible = true;
-
                     string title = txtTitle.Text;
                     string genre = txtGenre.Text;
                     string rating = txtRating.Text;
 
-                    // Add to DB and show results to user
+                    Dictionary<string, string> parameters = new Dictionary<string, string>()
+                    {
+                        { "Title", title },
+                        { "Genre", genre },
+                        { "Rating", rating }
+                    };
 
+                    DBResult res = db.InsertDVD(parameters);
+
+                    if (res.Code != -1)
+                    {
+                        Reset();
+                        pnlManual.Visible = false;
+                        pnlConfirmation.Visible = true;
+
+                        lblConfirmation.Text = String.Format("<strong>Title:</strong> {0}<br /><strong>Genre:</strong> {1}<br /><strong>Rating:</strong> {2}", title, genre, rating);
+                    }
+                    else
+                        UpdateLabelText(lblStatus, "An error occurred while trying to add the DVD.<br />" + res.ErrorMessage);
                 }
                 else
                     UpdateLabelText(lblStatus, "Please fill in <strong>Title</strong> at the minimum.");
             }
             else if (ddlItemType.SelectedValue.Equals("CD") | ddlItemType.SelectedValue.Equals("Vinyl"))
             {
-                if (ValidateCDVinylForm())
+                if (ValidateMusicForm())
                 {
-                    pnlManual.Visible = false;
-                    pnlConfirmation.Visible = true;
-
-                    string artistBand = txtArtistBand.Text;
-                    string album = txtAlbum.Text;
+                    string title = txtTitle.Text;
+                    string musician = txtArtistBand.Text;
                     string genre = txtGenre.Text;
 
-                    // Add to DB and show results to user
+                    Dictionary<string, string> parameters = new Dictionary<string, string>()
+                    {
+                        { "Title", title },
+                        { "Musician", musician },
+                        { "Genre", genre }
+                    };
 
+                    DBResult res = db.InsertMusic(parameters);
+
+                    if (res.Code != -1)
+                    {
+                        Reset();
+                        pnlManual.Visible = false;
+                        pnlConfirmation.Visible = true;
+
+                        lblConfirmation.Text = String.Format("<strong>Title:</strong> {0}<br /><strong>Musician:</strong> {1}<br /><strong>Genre:</strong> {2}", title, musician, genre);
+                    }
+                    else
+                        UpdateLabelText(lblStatus, "An error occurred while trying to add the DVD.<br />" + res.ErrorMessage);
                 }
                 else
                     UpdateLabelText(lblStatus, "Please fill in <strong>Artist/Band Name</strong> and <strong>Album Name</strong> at the minimum.");
@@ -713,10 +785,26 @@ namespace Trunked
                 if (ValidateOtherForm())
                 {
                     string type = txtOtherItemType.Text;
-                    string description = txtOtherItemDescription.Text;
                     string details = txtOtherItemDetails.Text;
-                    
-                    // Add to DB and show results to user
+                    string description = txtOtherItemDescription.Text;
+
+                    Dictionary<string, string> parameters = new Dictionary<string, string>()
+                    {
+                        { "Type", type },
+                        { "Details", details },
+                        { "Description", description }
+                    };
+
+                    DBResult res = db.InsertOther(parameters);
+
+                    if (res.Code != -1)
+                    {
+                        Reset();
+                        pnlManual.Visible = false;
+                        pnlConfirmation.Visible = true;
+
+                        lblConfirmation.Text = String.Format("<strong>Type:</strong> {0}<br /><strong>Details:</strong> {1}<br /><strong>Description:</strong> {2}", type, details, description);
+                    }
                 }
                 else
                     UpdateLabelText(lblStatus, "Please fill in <strong>Item Type</strong> and <strong>Description</strong> at the minimum.");
@@ -732,7 +820,12 @@ namespace Trunked
 
         protected bool ValidateClothingForm()
         {
-            return !ddlClothingType.SelectedValue.Equals("Select the type of clothing") && !ddlClothingSubType.SelectedValue.Equals("Select the most suitable subtype");
+            if (ddlClothingType.SelectedValue.Equals("Other"))
+                return !String.IsNullOrEmpty(txtOtherClothingType.Text) && !String.IsNullOrEmpty(txtOtherClothingSubType.Text);
+            else if (!ddlClothingType.SelectedValue.Equals("Other") && ddlClothingSubType.SelectedValue.Equals("Other"))
+                return !ddlClothingType.SelectedValue.Equals("Select the type of clothing") && !String.IsNullOrEmpty(txtOtherClothingSubType.Text);
+            else
+                return !ddlClothingType.SelectedValue.Equals("Select the type of clothing") && !ddlClothingSubType.SelectedValue.Equals("Select the most suitable subtype");
         }
 
         protected bool ValidateDVDForm()
@@ -740,9 +833,9 @@ namespace Trunked
             return !String.IsNullOrEmpty(txtTitle.Text);
         }
 
-        protected bool ValidateCDVinylForm()
+        protected bool ValidateMusicForm()
         {
-            return !String.IsNullOrEmpty(txtArtistBand.Text) && !String.IsNullOrEmpty(txtAlbum.Text);
+            return !String.IsNullOrEmpty(txtArtistBand.Text) && !String.IsNullOrEmpty(txtTitle.Text);
         }
 
         protected bool ValidateOtherForm()

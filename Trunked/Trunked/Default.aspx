@@ -126,12 +126,6 @@
                             <asp:TextBox ID="txtArtistBand" placeholder="Artist/Band Name" runat="server" style="max-width: 500px !important;" Width="500" /><span style="color:red;vertical-align: top;">*</span>
                         </asp:TableCell>
                     </asp:TableRow>
-                    <asp:TableRow ID="rowAlbum" >
-                        <asp:TableCell Text="Album Name:" CssClass="tblCell heading" />
-                        <asp:TableCell>
-                            <asp:TextBox ID="txtAlbum" placeholder="Album Name" runat="server" style="max-width: 500px !important;" Width="500" /><span style="color:red;vertical-align: top;">*</span>
-                        </asp:TableCell>
-                    </asp:TableRow>    
                     <asp:TableRow ID="rowGenre">
                         <asp:TableCell Text="Genre:" CssClass="tblCell heading" />
                         <asp:TableCell>
@@ -147,13 +141,19 @@
                     <asp:TableRow ID="rowClothingType" >
                         <asp:TableCell Text="Clothing Type:" CssClass="tblCell heading" />
                         <asp:TableCell>
-                            <asp:DropDownList ID="ddlClothingType" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlClothingType_SelectedIndexChanged" /><span style="color:red;vertical-align: top;">*</span>
+                            <asp:DropDownList ID="ddlClothingType" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlClothingType_SelectedIndexChanged" />
+                            <asp:Label ID="lblNewLine" runat="server" Text="<br />" Visible="false" />
+                            <asp:TextBox ID="txtOtherClothingType" placeholder="Clothing Type" runat="server" style="max-width: 500px !important;" Width="500" Visible="false" />
+                            <span style="color:red;vertical-align: top;">*</span>
                         </asp:TableCell>
                     </asp:TableRow>
                     <asp:TableRow ID="rowClothingSubType" >
-                        <asp:TableCell Text="Clothing SubType:" CssClass="tblCell heading" />
+                        <asp:TableCell Text="Clothing Sub-Type:" CssClass="tblCell heading" />
                         <asp:TableCell>
-                            <asp:DropDownList ID="ddlClothingSubType" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlClothingSubType_SelectedIndexChanged" /><span style="color:red;vertical-align: top;">*</span>
+                            <asp:DropDownList ID="ddlClothingSubType" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlClothingSubType_SelectedIndexChanged" />                            
+                            <asp:Label ID="lblNewLineSub" runat="server" Text="<br />" Visible="false" />
+                            <asp:TextBox ID="txtOtherClothingSubType" placeholder="Clothing Sub-Type" runat="server" style="max-width: 500px !important;" Width="500" Visible="false" />
+                            <span style="color:red;vertical-align: top;">*</span>
                         </asp:TableCell>
                     </asp:TableRow>
                     <asp:TableRow ID="rowClothingSize" >

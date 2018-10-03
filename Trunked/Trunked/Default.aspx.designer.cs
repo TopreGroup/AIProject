@@ -355,24 +355,6 @@ namespace Trunked {
         protected global::System.Web.UI.WebControls.TextBox txtArtistBand;
         
         /// <summary>
-        /// rowAlbum control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TableRow rowAlbum;
-        
-        /// <summary>
-        /// txtAlbum control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtAlbum;
-        
-        /// <summary>
         /// rowGenre control.
         /// </summary>
         /// <remarks>
@@ -427,6 +409,24 @@ namespace Trunked {
         protected global::System.Web.UI.WebControls.DropDownList ddlClothingType;
         
         /// <summary>
+        /// lblNewLine control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblNewLine;
+        
+        /// <summary>
+        /// txtOtherClothingType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtOtherClothingType;
+        
+        /// <summary>
         /// rowClothingSubType control.
         /// </summary>
         /// <remarks>
@@ -443,6 +443,24 @@ namespace Trunked {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList ddlClothingSubType;
+        
+        /// <summary>
+        /// lblNewLineSub control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblNewLineSub;
+        
+        /// <summary>
+        /// txtOtherClothingSubType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtOtherClothingSubType;
         
         /// <summary>
         /// rowClothingSize control.

@@ -15,7 +15,7 @@ CREATE PROCEDURE [dbo].[usp_insert_book]
 )
 AS
 BEGIN
-	INSERT INTO [dbo].[TrunkedModel] 
+	INSERT INTO [dbo].[TrunkedInventory] 
 	(
 		Tag, 
 		Details, 

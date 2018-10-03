@@ -5,7 +5,7 @@ GO
 CREATE PROCEDURE [dbo].[usp_get_itemTypes]
 AS
 BEGIN
-	SELECT DISTINCT Tag FROM [dbo].[TrunkedModel]
+	SELECT DISTINCT Tag FROM [dbo].[TrunkedInventory]
 END
 
 GO

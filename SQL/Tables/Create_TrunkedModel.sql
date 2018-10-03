@@ -1,9 +1,9 @@
-CREATE TABLE TrunkedModel 
+CREATE TABLE TrunkedInventory 
 (
     ID int IDENTITY (1, 1) PRIMARY KEY,
     Tag VARCHAR (20) NOT NULL,
     Details VARCHAR(100),
-    DateAdded DATETIME,
+	Description VARCHAR(100),    
     ISBN VARCHAR(30),
     BookTitle VARCHAR(100),
     BookAuthors VARCHAR(100),
@@ -15,10 +15,11 @@ CREATE TABLE TrunkedModel
     ClothingBrand VARCHAR(100),
     ClothingSize VARCHAR(100),
     ClothingColour VARCHAR(100),
-    FlixTitle VARCHAR(100),
-    FlixGenre VARCHAR(100),
-    FlixRating VARCHAR(100),
+    DVDTitle VARCHAR(100),
+    DVDGenre VARCHAR(100),
+    DVDRating VARCHAR(100),
     MusicTitle VARCHAR(100),
     Musician VARCHAR(100),
-    MusicGenre VARCHAR(100)
+    MusicGenre VARCHAR(100),
+	DateAdded DATETIME
 );
