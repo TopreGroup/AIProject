@@ -508,25 +508,36 @@ namespace Trunked
                         subTypes.Add("Singlet");
                         subTypes.Add("Tanktop");
                     }
-                    else if (ddlClothingType.SelectedValue.Equals("Dresses/Skirts"))
+                    else if (ddlClothingType.SelectedValue.Equals("Dresses"))
                     {
                         subTypes.Add("Dress");
                         subTypes.Add("Sundress");
                         subTypes.Add("Maxi");
-                        subTypes.Add("Wedding Dress");
+                        subTypes.Add("Wedding Dress");                        
+                    }
+                    else if (ddlClothingType.SelectedValue.Equals("Skirts"))
+                    {
+                        subTypes.Add("Normal Skirt");
+                        subTypes.Add("Short Skirt");
                         subTypes.Add("A-Line Skirt");
                         subTypes.Add("Pencil Skirt");
                     }
-                    else if (ddlClothingType.SelectedValue.Equals("Jumpers/Coats/Jackets"))
+                    else if (ddlClothingType.SelectedValue.Equals("Jumpers"))
                     {
                         subTypes.Add("Hoodie");
                         subTypes.Add("Sweater");
                         subTypes.Add("Windcheater");
-                        subTypes.Add("Raincoat");
-                        subTypes.Add("Leather Jacket");
-                        subTypes.Add("Suit Jacket");
+                    }
+                    else if (ddlClothingType.SelectedValue.Equals("Coats"))
+                    {
+                        subTypes.Add("Raincoat");                       
                         subTypes.Add("Trenchcoat");
                         subTypes.Add("Duster");
+                    }
+                    else if (ddlClothingType.SelectedValue.Equals("Jackets"))
+                    {
+                        subTypes.Add("Leather Jacket");
+                        subTypes.Add("Suit Jacket");
                     }
                     else if (ddlClothingType.SelectedValue.Equals("Shoes"))
                     {
