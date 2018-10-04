@@ -197,8 +197,6 @@ namespace Trunked
             }
 
             PrepareManualForm(item, clothingType);
-
-            //GetImageAndTrainModel(item);
         }
 
         public void btnConfirmBook_Click(object sender, EventArgs e)
@@ -596,6 +594,11 @@ namespace Trunked
                 lblNewLineSub.Visible = true;
                 txtOtherClothingSubType.Visible = true;
             }
+            else
+            {
+                lblNewLineSub.Visible = false;
+                txtOtherClothingSubType.Visible = false;
+            }
         }
 
         protected void txtISBN_TextChanged(object sender, EventArgs e)
@@ -692,6 +695,8 @@ namespace Trunked
                         pnlConfirmation.Visible = true;
 
                         lblConfirmation.Text = String.Format("<strong>ISBN:</strong> {0}<br /><strong>Title:</strong> {1}<br /><strong>Author(s):</strong> {2}<br /><strong>Publisher:</strong> {3}<br /><strong>Publish Date:</strong> {4}<br /><strong>Genre:</strong> {5}", isbn, title, authors, publisher, publishDate, genre);
+
+                        GetImageAndTrainModel("Book");
                     }
                     else
                         UpdateLabelText(lblStatus, "An error occurred while trying to add the book.<br />" + res.ErrorMessage);
@@ -727,6 +732,8 @@ namespace Trunked
                         pnlConfirmation.Visible = true;
 
                         lblConfirmation.Text = String.Format("<strong>Type:</strong> {0}<br /><strong>SubType:</strong> {1}<br /><strong>Brand:</strong> {2}<br /><strong>Size:</strong> {3}<br /><strong>Colour:</strong> {4}", type, subType, brand, size, colour);
+
+                        GetImageAndTrainModel(type);
                     }
                     else
                         UpdateLabelText(lblStatus, "An error occurred while trying to add the item of clothing.<br />" + res.ErrorMessage);
@@ -758,6 +765,8 @@ namespace Trunked
                         pnlConfirmation.Visible = true;
 
                         lblConfirmation.Text = String.Format("<strong>Title:</strong> {0}<br /><strong>Genre:</strong> {1}<br /><strong>Rating:</strong> {2}", title, genre, rating);
+
+                        GetImageAndTrainModel("DVD");
                     }
                     else
                         UpdateLabelText(lblStatus, "An error occurred while trying to add the DVD.<br />" + res.ErrorMessage);
@@ -789,6 +798,8 @@ namespace Trunked
                         pnlConfirmation.Visible = true;
 
                         lblConfirmation.Text = String.Format("<strong>Title:</strong> {0}<br /><strong>Musician:</strong> {1}<br /><strong>Genre:</strong> {2}", title, musician, genre);
+
+                        GetImageAndTrainModel(ddlItemType.SelectedValue);
                     }
                     else
                         UpdateLabelText(lblStatus, "An error occurred while trying to add the DVD.<br />" + res.ErrorMessage);
@@ -820,6 +831,8 @@ namespace Trunked
                         pnlConfirmation.Visible = true;
 
                         lblConfirmation.Text = String.Format("<strong>Type:</strong> {0}<br /><strong>Details:</strong> {1}<br /><strong>Description:</strong> {2}", type, details, description);
+
+                        GetImageAndTrainModel(type);
                     }
                 }
                 else
@@ -866,6 +879,7 @@ namespace Trunked
 
             string imageToTrainPath = "";
 
+            // There should be exactly 2 images in the folder; the dummy image and the actual image to train
             if (images.Length == 2)
                 imageToTrainPath = images[0].EndsWith("dummy.jpg") ? images[1] : images[0];
 
