@@ -94,7 +94,14 @@ namespace Trunked
                         else
                             UpdateLabelText(lblStatus, "Unable to decode barcode. Please try again.");
 
-                        customVision.TrainModel(path, "Barcode");
+                        try
+                        { 
+                            customVision.TrainModel(path, "Barcode");
+                        }
+                        catch (Exception ex)
+                        {
+                            UpdateLabelText(lblStatus, "An error occurred while trying to train the model.<br />" + ex.Message);
+                        }
                     }
                     else if (result.Type == ResultType.Other)
                     {
@@ -895,7 +902,16 @@ namespace Trunked
                 imageToTrainPath = images[0].EndsWith("dummy.jpg") ? images[1] : images[0];
 
             if (!String.IsNullOrEmpty(imageToTrainPath))
-                customVision.TrainModel(imageToTrainPath, tag);
+            {
+                try
+                {
+                    customVision.TrainModel(imageToTrainPath, tag);
+                }
+                catch (Exception ex)
+                {
+                    UpdateLabelText(lblStatus, "An error occurred while trying to train the model.<br />" + ex.Message);
+                }
+            }
         }
     }
 }
