@@ -16,6 +16,9 @@ namespace Trunked
         protected readonly string ERROR_IMAGESIZE = "BadRequestImageSizeBytes";
         protected readonly string MESSAGE_IMAGESIZE = "Image file is too large. Please choose an image smaller than 4MB";
 
+        protected readonly string ERROR_TRAININGNOTNEEDED = "BadRequestTrainingNotNeeded";
+        protected readonly string MESSAGE_TRAININGNOTNEEDED = "Nothing changed since last training";
+
         protected string trainingKey = ConfigurationManager.AppSettings["CustomVisionTrainingKey"];
         protected string predictionKey = ConfigurationManager.AppSettings["CustomVisionPredictionKey"];
         protected Guid projectID = new Guid(ConfigurationManager.AppSettings["CustomVisionProjectID"]);
@@ -93,18 +96,14 @@ namespace Trunked
                             if (books != null)
                                 bookRecognizer.FormatBookResultsForConfirmation(books, tblResults, this);
                             else
-                                UpdateLabelText(lblStatus, "No similar books found. Please try again.");                            
+                                UpdateLabelText(lblStatus, "No similar books found. Please try again.");
+
+                            GetImageAndTrainModel("Barcode");
                         }
                         else
-                            UpdateLabelText(lblStatus, "Unable to decode barcode. Please try again.");
-
-                        try
-                        { 
-                            customVision.TrainModel(path, "Barcode");
-                        }
-                        catch (Exception ex)
                         {
-                            //UpdateLabelText(lblStatus, "An error occurred while trying to train the model.<br />" + ex.Message);
+                            DeleteImage(path);
+                            UpdateLabelText(lblStatus, "Unable to decode barcode. Please try again.");
                         }
                     }
                     else if (result.Type == ResultType.Other)
@@ -904,15 +903,29 @@ namespace Trunked
                 {
                     customVision.TrainModel(path, tag);
                 }
+                catch (Microsoft.Rest.HttpOperationException ex)
+                {
+                    JObject exContent = JObject.Parse(ex.Response.Content);
+
+                    string code = exContent["code"].ToString();
+                    string message = exContent["message"].ToString();
+
+                    if (!code.Equals(ERROR_TRAININGNOTNEEDED) && !message.Equals(MESSAGE_TRAININGNOTNEEDED))
+                        UpdateLabelText(lblStatus, "An error occurred while trying to train the model.<br />Code: " + code + "<br />Message: " + message);
+                }
                 catch (Exception ex)
                 {
-                    //UpdateLabelText(lblStatus, "An error occurred while trying to train the model.<br />" + ex.Message);
+                    UpdateLabelText(lblStatus, "An error occurred while trying to train the model.<br />" + ex.Message);
                 }
-                finally
-                {
-                    File.Delete(path);
-                }
+
+                File.Delete(path);
             }
+        }
+
+        protected void DeleteImage(string path)
+        {
+            if (File.Exists(path))
+                File.Delete(path);
         }
     }
 }
