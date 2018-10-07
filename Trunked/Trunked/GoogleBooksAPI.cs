@@ -148,14 +148,14 @@ namespace Trunked
                         {
                             if (identifier["type"].ToString().Equals("ISBN_13"))
                             {
-                                barcodeType = "ISBN_13";
+                                barcodeType = identifier["type"].ToString();
                                 isbn = identifier["identifier"].ToString();
                                 break;
                             }
 
                             if (identifier["type"].ToString().Equals("ISBN_10"))
                             {
-                                barcodeType = "ISBN_10";
+                                barcodeType = identifier["type"].ToString();
                                 isbn = identifier["identifier"].ToString();
                                 break;
                             }
@@ -163,7 +163,14 @@ namespace Trunked
                     }
                 }
                 else
+                {
                     isbn = actualISBN;
+
+                    if (isbn.Length == 10)
+                        barcodeType = "ISBN_10";
+                    else if (isbn.Length == 13)
+                        barcodeType = "ISBN_13";
+                }
 
                 bookDetails.Add("BarcodeType", String.IsNullOrEmpty(barcodeType) ? "Unknown" : barcodeType);
                 bookDetails.Add("ISBN", String.IsNullOrEmpty(isbn) ? "Unknown" : isbn);
