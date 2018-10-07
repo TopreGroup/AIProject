@@ -8,6 +8,7 @@
             $('#<%= tblResults.ClientID %>').css({ 'display': "none" });
             $('#<%= tblObjectResults.ClientID %>').css({ 'display': "none" });
             $('#<%= lblRecognizedAs.ClientID %>').css({ 'display': "none" });
+            $('#<%= pnlRecognizedAs.ClientID %>').css({ 'display': "none" });
         }
 
         function showSmallLoadingGif() {

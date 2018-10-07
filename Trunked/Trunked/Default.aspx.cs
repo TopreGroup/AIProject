@@ -100,7 +100,7 @@ namespace Trunked
                         }
                         catch (Exception ex)
                         {
-                            UpdateLabelText(lblStatus, "An error occurred while trying to train the model.<br />" + ex.Message);
+                            //UpdateLabelText(lblStatus, "An error occurred while trying to train the model.<br />" + ex.Message);
                         }
                     }
                     else if (result.Type == ResultType.Other)

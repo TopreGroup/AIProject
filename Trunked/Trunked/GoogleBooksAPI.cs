@@ -37,7 +37,7 @@ namespace Trunked
             if (jsonObj["totalItems"].ToString().Equals("0"))
                 return null;
 
-            return HandleAPIResults(jsonObj);
+            return HandleAPIResults(jsonObj, "");
         }
 
         public List<Dictionary<string, string>> GetBookDetailsFromISBN(string isbn)
@@ -64,7 +64,7 @@ namespace Trunked
             if (jsonObj["totalItems"].ToString().Equals("0"))
                 return null;
 
-            return HandleAPIResults(jsonObj);
+            return HandleAPIResults(jsonObj, isbn);
         }
 
         public List<Dictionary<string, string>> GetBookDetailsFromManualForm(string isbn, string title, string author, string publisher)
@@ -105,10 +105,10 @@ namespace Trunked
             if (jsonObj["totalItems"].ToString().Equals("0"))
                 return null;
 
-            return HandleAPIResults(jsonObj);
+            return HandleAPIResults(jsonObj, isbn);
         }
 
-        private List<Dictionary<string, string>> HandleAPIResults(JObject resultObj)
+        private List<Dictionary<string, string>> HandleAPIResults(JObject resultObj, string actualISBN)
         {
             List<Dictionary<string, string>> bookDetailsList = new List<Dictionary<string, string>>();
 
@@ -138,27 +138,32 @@ namespace Trunked
                 string barcodeType = "";
                 string isbn = "";
 
-                JArray industryIdentifiersArray = (JArray)resultsArray[i]["volumeInfo"]["industryIdentifiers"];
-
-                if (industryIdentifiersArray != null)
+                if (String.IsNullOrEmpty(actualISBN))
                 {
-                    foreach (JToken identifier in industryIdentifiersArray)
-                    {
-                        if (identifier["type"].ToString().Equals("ISBN_13"))
-                        {
-                            barcodeType = "ISBN_13";
-                            isbn = identifier["identifier"].ToString();
-                            break;
-                        }
+                    JArray industryIdentifiersArray = (JArray)resultsArray[i]["volumeInfo"]["industryIdentifiers"];
 
-                        if (identifier["type"].ToString().Equals("ISBN_10"))
+                    if (industryIdentifiersArray != null)
+                    {
+                        foreach (JToken identifier in industryIdentifiersArray)
                         {
-                            barcodeType = "ISBN_10";
-                            isbn = identifier["identifier"].ToString();
-                            break;
+                            if (identifier["type"].ToString().Equals("ISBN_13"))
+                            {
+                                barcodeType = "ISBN_13";
+                                isbn = identifier["identifier"].ToString();
+                                break;
+                            }
+
+                            if (identifier["type"].ToString().Equals("ISBN_10"))
+                            {
+                                barcodeType = "ISBN_10";
+                                isbn = identifier["identifier"].ToString();
+                                break;
+                            }
                         }
                     }
                 }
+                else
+                    isbn = actualISBN;
 
                 bookDetails.Add("BarcodeType", String.IsNullOrEmpty(barcodeType) ? "Unknown" : barcodeType);
                 bookDetails.Add("ISBN", String.IsNullOrEmpty(isbn) ? "Unknown" : isbn);
@@ -180,6 +185,8 @@ namespace Trunked
 
                 JArray subCategoriesArray = (JArray)resultsArray[i]["volumeInfo"]["categories"];
 
+                string genre = "Unknown";
+
                 if (subCategoriesArray != null)
                 {
                     foreach (JToken subCategory in subCategoriesArray)
@@ -187,10 +194,12 @@ namespace Trunked
 
                     subCategories = subCategories.Substring(0, subCategories.Length - 2);
 
-                    bookDetails.Add("Genre", subCategoriesArray[0].ToString());
+                    genre = subCategoriesArray[0].ToString();
                 }
                 else
                     subCategories = "Unknown";
+
+                bookDetails.Add("Genre", genre);
 
                 string other = "<strong>Sub-Categories:</strong> " + subCategories + "<br />";
                 other += "<strong>Pages:</strong> " + (resultsArray[i]["volumeInfo"]["pageCount"] == null ? "Unknown" : resultsArray[i]["volumeInfo"]["pageCount"].ToString()) + "<br />";
