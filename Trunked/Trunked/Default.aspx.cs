@@ -54,7 +54,11 @@ namespace Trunked
 
                 try
                 {
-                    string fileName = Path.GetFileName(ctrlFileUpload.FileName);
+                    //string fileName = Path.GetFileName(ctrlFileUpload.FileName);
+
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(ctrlFileUpload.FileName);
+
+                    Session["ImageFileName"] = fileName;
 
                     path = Server.MapPath("~/temp/") + fileName;
                     imagePath = path;
@@ -199,9 +203,9 @@ namespace Trunked
                     clothingType = item;
                     item = "Clothing";
                 }
-                else
-                    item = "Other";
             }
+            else
+                item = "Other";
 
             PrepareManualForm(item, clothingType);
         }
@@ -892,24 +896,21 @@ namespace Trunked
 
         public void GetImageAndTrainModel(string tag)
         {
-            // Images will always be saved to the temp folder
-            string[] images = Directory.GetFiles(Server.MapPath("~/temp/"));
+            string path = Server.MapPath("~/temp/") + Session["ImageFileName"];
 
-            string imageToTrainPath = "";
-
-            // There should be exactly 2 images in the folder; the dummy image and the actual image to train
-            if (images.Length == 2)
-                imageToTrainPath = images[0].EndsWith("dummy.jpg") ? images[1] : images[0];
-
-            if (!String.IsNullOrEmpty(imageToTrainPath))
+            if (File.Exists(path))
             {
                 try
                 {
-                    customVision.TrainModel(imageToTrainPath, tag);
+                    customVision.TrainModel(path, tag);
                 }
                 catch (Exception ex)
                 {
-                    UpdateLabelText(lblStatus, "An error occurred while trying to train the model.<br />" + ex.Message);
+                    //UpdateLabelText(lblStatus, "An error occurred while trying to train the model.<br />" + ex.Message);
+                }
+                finally
+                {
+                    File.Delete(path);
                 }
             }
         }
