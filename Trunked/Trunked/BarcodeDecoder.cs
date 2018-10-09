@@ -9,7 +9,7 @@ namespace Trunked
         {
             BarcodeReader reader = new BarcodeReader()
             {
-                AutoRotate = false,
+                AutoRotate = true,
                 TryInverted = true,
                 Options =
                     {

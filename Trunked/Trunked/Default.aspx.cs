@@ -7,6 +7,8 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using ImageResizer;
 using System.Linq;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace Trunked
 {
@@ -51,14 +53,14 @@ namespace Trunked
         {
             Reset();
 
+            pnlImage.Visible = false;
+
             if (ctrlFileUpload.HasFile)
             {
                 string path = "";
 
                 try
                 {
-                    //string fileName = Path.GetFileName(ctrlFileUpload.FileName);
-
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(ctrlFileUpload.FileName);
 
                     Session["ImageFileName"] = fileName;
@@ -68,8 +70,9 @@ namespace Trunked
 
                     ctrlFileUpload.SaveAs(path);
 
-                    // Resizes the image to a better size for the decoder and also for the model
-                    ImageBuilder.Current.Build(path, path, new ResizeSettings("width=768&height=1024"));
+                    RotateAndResizeImage(path);
+
+                    imgUploadedImage.ImageUrl = "~/temp/" + fileName;
                 }
                 catch (Exception ex)
                 {
@@ -926,6 +929,44 @@ namespace Trunked
         {
             if (File.Exists(path))
                 File.Delete(path);
+        }
+
+        protected void RotateAndResizeImage(string path)
+        {
+            System.Drawing.Image img = System.Drawing.Image.FromFile(path);
+
+            int rotationPropertyID = 0x112;
+
+            if (img.PropertyIdList.Contains(rotationPropertyID))
+            {
+                PropertyItem rotationProperty = img.GetPropertyItem(rotationPropertyID);
+
+                int rotationValue = BitConverter.ToUInt16(rotationProperty.Value, 0);
+
+                RotateFlipType rotationToPerform = RotateFlipType.RotateNoneFlipNone;
+                
+                if (rotationValue == 3 || rotationValue == 4)
+                    rotationToPerform = RotateFlipType.Rotate180FlipNone;
+                else if (rotationValue == 5 || rotationValue == 6)
+                    rotationToPerform = RotateFlipType.Rotate90FlipNone;
+                else if (rotationValue == 7 || rotationValue == 8)
+                    rotationToPerform = RotateFlipType.Rotate270FlipNone;
+
+                if (rotationValue == 2 || rotationValue == 4 || rotationValue == 5 || rotationValue == 7)
+                    rotationToPerform |= RotateFlipType.RotateNoneFlipX;
+                    
+                if (rotationToPerform != RotateFlipType.RotateNoneFlipNone)
+                    img.RotateFlip(rotationToPerform);
+
+                img.Save(path);
+            }
+
+            img.Dispose();
+
+            // Resizes the image to a better size for the decoder and also for the model
+            ImageBuilder.Current.Build(path, path, new ResizeSettings("width=768&height=1024"));
+
+            pnlImage.Visible = true;            
         }
     }
 }
