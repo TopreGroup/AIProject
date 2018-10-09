@@ -14,26 +14,34 @@ namespace Trunked
     {
         public TrainingApi TrainingApi { get; set; }
 
-        public string TrainingKey { get; set; }
-        public string PredictionKey { get; set; }
-        public Guid ProjectID { get; set; }
+        public string ObjectModelTrainingKey { get; set; }
+        public string ObjectModelPredictionKey { get; set; }
+        public Guid ObjectModelProjectID { get; set; }
+
+        public string ClothingModelTrainingKey { get; set; }
+        public string ClothingModelPredictionKey { get; set; }
+        public Guid ClothingModelProjectID { get; set; }
 
         public CustomVision()
         {
-            TrainingKey = ConfigurationManager.AppSettings["CustomVisionTrainingKey"];
-            PredictionKey = ConfigurationManager.AppSettings["CustomVisionPredictionKey"];
-            ProjectID = new Guid(ConfigurationManager.AppSettings["CustomVisionProjectID"]);
+            ObjectModelTrainingKey = ConfigurationManager.AppSettings["ObjectModelTrainingKey"];
+            ObjectModelPredictionKey = ConfigurationManager.AppSettings["ObjectModelPredictionKey"];
+            ObjectModelProjectID = new Guid(ConfigurationManager.AppSettings["ObjectModelProjectID"]);
 
-            TrainingApi = new TrainingApi() { ApiKey = TrainingKey };
+            ClothingModelTrainingKey = ConfigurationManager.AppSettings["ClothingModelTrainingKey"];
+            ClothingModelPredictionKey = ConfigurationManager.AppSettings["ClothingModelPredictionKey"];
+            ClothingModelProjectID = new Guid(ConfigurationManager.AppSettings["ClothingModelProjectID"]);
+
+            TrainingApi = new TrainingApi() { ApiKey = ObjectModelTrainingKey };
             TrainingApi.HttpClient.Timeout = new TimeSpan(0, 30, 0);
         }
 
         public Result MakePrediction(string predictionImagePath)
         {
-            PredictionEndpoint endpoint = new PredictionEndpoint() { ApiKey = PredictionKey };
+            PredictionEndpoint endpoint = new PredictionEndpoint() { ApiKey = ObjectModelPredictionKey };
             MemoryStream predictionImage = new MemoryStream(File.ReadAllBytes(predictionImagePath));
 
-            Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models.ImagePrediction predictionResult = endpoint.PredictImage(ProjectID, predictionImage);
+            Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models.ImagePrediction predictionResult = endpoint.PredictImage(ObjectModelProjectID, predictionImage);
 
             Result result = new Result
             {
@@ -52,7 +60,7 @@ namespace Trunked
 
         protected void CreateNewTag(string newTag)
         {
-            var tags = TrainingApi.GetTags(ProjectID);
+            var tags = TrainingApi.GetTags(ObjectModelProjectID);
 
             bool tagExists = false;
             Tag bookTag = null;
@@ -73,7 +81,7 @@ namespace Trunked
                 // Check number of images in folder
                 // If > 5, proceed with creating tag and training
 
-                bookTag = TrainingApi.CreateTag(ProjectID, newTag);
+                bookTag = TrainingApi.CreateTag(ObjectModelProjectID, newTag);
             }
         }
 
@@ -82,7 +90,7 @@ namespace Trunked
             // Since apparently we can only have 10 iterations max
             DeleteEarliestIteration();
 
-            var tags = TrainingApi.GetTags(ProjectID);
+            var tags = TrainingApi.GetTags(ObjectModelProjectID);
 
             Tag trainTag = null;
 
@@ -97,32 +105,32 @@ namespace Trunked
 
             using (var stream = File.Open(imagePath, FileMode.Open))
             {
-                TrainingApi.CreateImagesFromData(ProjectID, stream, new List<string>() { trainTag.Id.ToString() });
+                TrainingApi.CreateImagesFromData(ObjectModelProjectID, stream, new List<string>() { trainTag.Id.ToString() });
             }
 
-            var iteration = TrainingApi.TrainProject(ProjectID);
+            var iteration = TrainingApi.TrainProject(ObjectModelProjectID);
 
             while (iteration.Status == "Training")
             {
                 Thread.Sleep(1000);
 
-                iteration = TrainingApi.GetIteration(ProjectID, iteration.Id);
+                iteration = TrainingApi.GetIteration(ObjectModelProjectID, iteration.Id);
             }
 
             iteration.IsDefault = true;
-            TrainingApi.UpdateIteration(ProjectID, iteration.Id, iteration);
+            TrainingApi.UpdateIteration(ObjectModelProjectID, iteration.Id, iteration);
 
             File.Delete(imagePath);
         }
 
         public void DeleteEarliestIteration()
         {
-            var iterations = TrainingApi.GetIterations(ProjectID);
+            var iterations = TrainingApi.GetIterations(ObjectModelProjectID);
 
             Iteration iterationToDelete = iterations[iterations.Count - 1];
 
             if (iterations.Count == 10)
-                TrainingApi.DeleteIteration(ProjectID, iterationToDelete.Id);
+                TrainingApi.DeleteIteration(ObjectModelProjectID, iterationToDelete.Id);
         }
     }
 }

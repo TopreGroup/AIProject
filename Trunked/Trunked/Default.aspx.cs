@@ -19,10 +19,6 @@ namespace Trunked
         protected readonly string ERROR_TRAININGNOTNEEDED = "BadRequestTrainingNotNeeded";
         protected readonly string MESSAGE_TRAININGNOTNEEDED = "Nothing changed since last training";
 
-        protected string trainingKey = ConfigurationManager.AppSettings["CustomVisionTrainingKey"];
-        protected string predictionKey = ConfigurationManager.AppSettings["CustomVisionPredictionKey"];
-        protected Guid projectID = new Guid(ConfigurationManager.AppSettings["CustomVisionProjectID"]);
-
         protected GoogleBooksAPI googleBooksAPI = new GoogleBooksAPI();
         protected CustomVision customVision = new CustomVision();
         BookRecognizer bookRecognizer = new BookRecognizer();
