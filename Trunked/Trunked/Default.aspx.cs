@@ -24,8 +24,9 @@ namespace Trunked
         protected Guid projectID = new Guid(ConfigurationManager.AppSettings["CustomVisionProjectID"]);
 
         protected GoogleBooksAPI googleBooksAPI = new GoogleBooksAPI();
+        protected OMDbAPI omdbAPI = new OMDbAPI();
         protected CustomVision customVision = new CustomVision();
-        BookRecognizer bookRecognizer = new BookRecognizer();
+        protected OCR ocr = new OCR();
         protected DBConnection db = new DBConnection();
 
         protected string recognizedText = "";
@@ -43,7 +44,7 @@ namespace Trunked
                 List<Dictionary<string, string>> books = googleBooksAPI.GetBookDetailsFromISBN(Request.QueryString["isbn"]);
 
                 if (books != null)
-                    bookRecognizer.FormatBookResultsForConfirmation(books, tblResults, this);
+                    googleBooksAPI.FormatBookResultsForConfirmation(books, tblResults, this);
             }
         }
 
@@ -94,7 +95,7 @@ namespace Trunked
                             List<Dictionary<string, string>> books = googleBooksAPI.GetBookDetailsFromISBN(barcode.Text);
 
                             if (books != null)
-                                bookRecognizer.FormatBookResultsForConfirmation(books, tblResults, this);
+                                googleBooksAPI.FormatBookResultsForConfirmation(books, tblResults, this);
                             else
                                 UpdateLabelText(lblStatus, "No similar books found. Please try again.");
 
@@ -108,23 +109,40 @@ namespace Trunked
                     }
                     else if (result.Type == ResultType.Other)
                     {
-                        if (result.Name.Equals("Book"))
+                        if (result.Name.Equals("Book") || result.Name.Equals("DVD"))
                         {
-                            string imageText = bookRecognizer.ReadTextFromImage(path);
+                            string imageText = ocr.ReadTextFromImage(path);
 
                             if (!String.IsNullOrWhiteSpace(imageText))
                             {
-                                List<Dictionary<string, string>> bookDetails = googleBooksAPI.GetBookDetailsFromText(imageText, ConfigurationManager.AppSettings["GoogleBooksAPIMaxResults"]);
-
-                                if (bookDetails != null)
+                                if (result.Name.Equals("Book"))
                                 {
-                                    bookRecognizer.FormatBookResultsForSelection(bookDetails, tblResults);
+                                    List<Dictionary<string, string>> bookDetails = googleBooksAPI.GetBookDetailsFromText(imageText, ConfigurationManager.AppSettings["GoogleBooksAPIMaxResults"]);
 
-                                    btnBookNotFound.Visible = true;
-                                    lblNewLines.Visible = true;
+                                    if (bookDetails != null)
+                                    {
+                                        googleBooksAPI.FormatBookResultsForSelection(bookDetails, tblResults);
+
+                                        btnBookNotFound.Visible = true;
+                                        lblNewLines.Visible = true;
+                                    }
+                                    else
+                                        UpdateLabelText(lblStatus, "Unable to recognize book cover. Please upload a different image or click the link above to add it manually");
                                 }
                                 else
-                                    UpdateLabelText(lblStatus, "Unable to recognize book cover. Please upload a different image or click the link above to add it manually");
+                                {
+                                    List<Dictionary<string, string>> movieDetails = omdbAPI.GetMovieDetailsFromText(imageText);
+
+                                    if (movieDetails != null)
+                                    {
+                                        omdbAPI.FormatMovieResultsForSelection(movieDetails, tblResults);
+
+                                        btnBookNotFound.Visible = true;
+                                        lblNewLines.Visible = true;
+                                    }
+                                    else
+                                        UpdateLabelText(lblStatus, "Unable to recognize DVD cover. Please upload a different image or click the link above to add it manually");
+                                }
                             }
                             else
                                 UpdateLabelText(lblStatus, "Unable to recognize book cover. Please try again.");
