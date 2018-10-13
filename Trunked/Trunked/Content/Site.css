@@ -37,3 +37,15 @@ textarea {
 .heading {
     font-weight: bold;
 }
+
+#videoContainer {
+    margin: 0px auto;
+    width: 500px;
+    height: 375px;
+    border: 10px #333 solid;
+}
+
+#videoElement {
+    width: 500px;
+    height: 375px;
+}

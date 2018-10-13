@@ -14,9 +14,38 @@
         function showSmallLoadingGif() {
             $("#imgSmallLoading").show();
         }
+
+        var video = document.getElementById("#videoElement");
+
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    video.srcObject = stream;
+                    //video.play();
+                })
+                .catch(error => {
+                console.error(error);
+                });
+        }
+
+        var canvas = document.getElementById('canvas')
+        //var context = canvas.getContext('2d');
+
+        //document.getElementById("snap").addEventListener("click", function () {
+       //     context.drawImage(video, 0, 0, 500, 375);
+      //  });
 	</script>
+
+     <div id="videoContainer">
+    <video autoplay id="videoElement"></video>
+    <button id="snap">Snap Photo</button>
+    <canvas id="canvas" width="500" height="375"></canvas>
+        </div>
+
     <div class="jumbotron">
         <h1>Trunked</h1>
+
+
         <asp:Panel ID="pnlRecognition" runat="server" >
             <p class="lead">Choose your image below and then click <strong><i>Recognize</i></strong>.</p>
 		    <p><asp:FileUpload ID="ctrlFileUpload" runat="server" /></p>
