@@ -12,11 +12,12 @@ namespace Trunked
 {
     public class CustomVision
     {
-        public TrainingApi TrainingApi { get; set; }
+        public TrainingApi ClassifierTrainingApi { get; set; }
+        public TrainingApi ClothingTrainingApi { get; set; }
 
-        public string ObjectModelTrainingKey { get; set; }
-        public string ObjectModelPredictionKey { get; set; }
-        public Guid ObjectModelProjectID { get; set; }
+        public string ClassifierModelTrainingKey { get; set; }
+        public string ClassifierModelPredictionKey { get; set; }
+        public Guid ClassifierModelProjectID { get; set; }
 
         public string ClothingModelTrainingKey { get; set; }
         public string ClothingModelPredictionKey { get; set; }
@@ -24,24 +25,27 @@ namespace Trunked
 
         public CustomVision()
         {
-            ObjectModelTrainingKey = ConfigurationManager.AppSettings["ObjectModelTrainingKey"];
-            ObjectModelPredictionKey = ConfigurationManager.AppSettings["ObjectModelPredictionKey"];
-            ObjectModelProjectID = new Guid(ConfigurationManager.AppSettings["ObjectModelProjectID"]);
+            ClassifierModelTrainingKey = ConfigurationManager.AppSettings["ObjectModelTrainingKey"];
+            ClassifierModelPredictionKey = ConfigurationManager.AppSettings["ObjectModelPredictionKey"];
+            ClassifierModelProjectID = new Guid(ConfigurationManager.AppSettings["ObjectModelProjectID"]);
 
             ClothingModelTrainingKey = ConfigurationManager.AppSettings["ClothingModelTrainingKey"];
             ClothingModelPredictionKey = ConfigurationManager.AppSettings["ClothingModelPredictionKey"];
             ClothingModelProjectID = new Guid(ConfigurationManager.AppSettings["ClothingModelProjectID"]);
 
-            TrainingApi = new TrainingApi() { ApiKey = ObjectModelTrainingKey };
-            TrainingApi.HttpClient.Timeout = new TimeSpan(0, 30, 0);
+            ClassifierTrainingApi = new TrainingApi() { ApiKey = ClassifierModelTrainingKey };
+            ClassifierTrainingApi.HttpClient.Timeout = new TimeSpan(0, 30, 0);
+
+            ClothingTrainingApi = new TrainingApi() { ApiKey = ClothingModelTrainingKey };
+            ClothingTrainingApi.HttpClient.Timeout = new TimeSpan(0, 30, 0);
         }
 
-        public Result MakePrediction(string predictionImagePath)
+        public Result GetClassification(string predictionImagePath)
         {
-            PredictionEndpoint endpoint = new PredictionEndpoint() { ApiKey = ObjectModelPredictionKey };
+            PredictionEndpoint endpoint = new PredictionEndpoint() { ApiKey = ClassifierModelPredictionKey };
             MemoryStream predictionImage = new MemoryStream(File.ReadAllBytes(predictionImagePath));
 
-            Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models.ImagePrediction predictionResult = endpoint.PredictImage(ObjectModelProjectID, predictionImage);
+            Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models.ImagePrediction predictionResult = endpoint.PredictImage(ClassifierModelProjectID, predictionImage);
 
             Result result = new Result
             {
@@ -51,16 +55,35 @@ namespace Trunked
             };
 
             if (result.Name.Equals("Barcode"))
-                result.Type = ResultType.Barcode;
+                result.Classification = Classifiers.Barcode;
+            else if (result.Name.Equals("Clothing"))
+                result.Classification = Classifiers.Clothing;
             else
-                result.Type = ResultType.Other;
+                result.Classification = Classifiers.Other;
+
+            return result;
+        }
+
+        public Result GetClothingPrediction(string predictionImagePath)
+        {
+            PredictionEndpoint endpoint = new PredictionEndpoint() { ApiKey = ClothingModelPredictionKey };
+            MemoryStream predictionImage = new MemoryStream(File.ReadAllBytes(predictionImagePath));
+
+            Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models.ImagePrediction predictionResult = endpoint.PredictImage(ClothingModelProjectID, predictionImage);
+
+            Result result = new Result
+            {
+                // First result in list is highest probability
+                Name = predictionResult.Predictions[0].TagName,
+                Probability = predictionResult.Predictions[0].Probability.ToString()
+            };
 
             return result;
         }
 
         protected void CreateNewTag(string newTag)
         {
-            var tags = TrainingApi.GetTags(ObjectModelProjectID);
+            var tags = ClassifierTrainingApi.GetTags(ClassifierModelProjectID);
 
             bool tagExists = false;
             Tag bookTag = null;
@@ -81,16 +104,16 @@ namespace Trunked
                 // Check number of images in folder
                 // If > 5, proceed with creating tag and training
 
-                bookTag = TrainingApi.CreateTag(ObjectModelProjectID, newTag);
+                bookTag = ClassifierTrainingApi.CreateTag(ClassifierModelProjectID, newTag);
             }
         }
 
-        public void TrainModel(string imagePath, string imageTag)
+        public void TrainClassifierModel(string imagePath, string imageTag)
         {
             // Since apparently we can only have 10 iterations max
-            DeleteEarliestIteration();
+            DeleteEarliestIteration(false);
 
-            var tags = TrainingApi.GetTags(ObjectModelProjectID);
+            var tags = ClassifierTrainingApi.GetTags(ClassifierModelProjectID);
 
             Tag trainTag = null;
 
@@ -105,32 +128,82 @@ namespace Trunked
 
             using (var stream = File.Open(imagePath, FileMode.Open))
             {
-                TrainingApi.CreateImagesFromData(ObjectModelProjectID, stream, new List<string>() { trainTag.Id.ToString() });
+                ClassifierTrainingApi.CreateImagesFromData(ClassifierModelProjectID, stream, new List<string>() { trainTag.Id.ToString() });
             }
 
-            var iteration = TrainingApi.TrainProject(ObjectModelProjectID);
+            var iteration = ClassifierTrainingApi.TrainProject(ClassifierModelProjectID);
 
             while (iteration.Status == "Training")
             {
                 Thread.Sleep(1000);
 
-                iteration = TrainingApi.GetIteration(ObjectModelProjectID, iteration.Id);
+                iteration = ClassifierTrainingApi.GetIteration(ClassifierModelProjectID, iteration.Id);
             }
 
             iteration.IsDefault = true;
-            TrainingApi.UpdateIteration(ObjectModelProjectID, iteration.Id, iteration);
+            ClassifierTrainingApi.UpdateIteration(ClassifierModelProjectID, iteration.Id, iteration);
 
             File.Delete(imagePath);
         }
 
-        public void DeleteEarliestIteration()
+        public void TrainClothingModel(string imagePath, string imageTag)
         {
-            var iterations = TrainingApi.GetIterations(ObjectModelProjectID);
+            // Since apparently we can only have 10 iterations max
+            DeleteEarliestIteration(true);
 
-            Iteration iterationToDelete = iterations[iterations.Count - 1];
+            var tags = ClothingTrainingApi.GetTags(ClothingModelProjectID);
 
-            if (iterations.Count == 10)
-                TrainingApi.DeleteIteration(ObjectModelProjectID, iterationToDelete.Id);
+            Tag trainTag = null;
+
+            foreach (Tag tag in tags)
+            {
+                if (tag.Name.Equals(imageTag))
+                {
+                    trainTag = tag;
+                    break;
+                }
+            }
+
+            using (var stream = File.Open(imagePath, FileMode.Open))
+            {
+                ClothingTrainingApi.CreateImagesFromData(ClothingModelProjectID, stream, new List<string>() { trainTag.Id.ToString() });
+            }
+
+            var iteration = ClothingTrainingApi.TrainProject(ClothingModelProjectID);
+
+            while (iteration.Status == "Training")
+            {
+                Thread.Sleep(1000);
+
+                iteration = ClothingTrainingApi.GetIteration(ClothingModelProjectID, iteration.Id);
+            }
+
+            iteration.IsDefault = true;
+            ClothingTrainingApi.UpdateIteration(ClothingModelProjectID, iteration.Id, iteration);
+
+            File.Delete(imagePath);
+        }
+
+        public void DeleteEarliestIteration(bool isClothing)
+        {
+            if (isClothing)
+            {
+                var iterations = ClothingTrainingApi.GetIterations(ClothingModelProjectID);
+
+                Iteration iterationToDelete = iterations[iterations.Count - 1];
+
+                if (iterations.Count == 10)
+                    ClothingTrainingApi.DeleteIteration(ClothingModelProjectID, iterationToDelete.Id);
+            }
+            else
+            {
+                var iterations = ClassifierTrainingApi.GetIterations(ClassifierModelProjectID);
+
+                Iteration iterationToDelete = iterations[iterations.Count - 1];
+
+                if (iterations.Count == 10)
+                    ClassifierTrainingApi.DeleteIteration(ClassifierModelProjectID, iterationToDelete.Id);
+            }
         }
     }
 }

@@ -1,14 +1,16 @@
 ﻿namespace Trunked
 {
-    public enum ResultType
+    public enum Classifiers
     {
         Barcode,
+        Book,
+        Clothing,
         Other
     }
 
     public class Result
     {
-        public ResultType Type { get; set; }
+        public Classifiers Classification { get; set; }
 
         public string Name { get; set; }
 
