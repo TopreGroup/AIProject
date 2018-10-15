@@ -905,8 +905,8 @@ namespace Trunked
                 {
                     if (isClothing)
                         customVision.TrainClothingModel(path, tag);
-                    else
-                        customVision.TrainClassifierModel(path, tag);
+                    
+                    customVision.TrainClassifierModel(path, tag);
                 }
                 catch (Microsoft.Rest.HttpOperationException ex)
                 {
