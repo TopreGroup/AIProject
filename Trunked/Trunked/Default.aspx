@@ -25,9 +25,11 @@
                     video.play();
 
                     document.getElementById("snap").addEventListener("click", function () {
-                        //context.drawImage(video, 0, 0, 500, 375);
+                        context.drawImage(video, 0, 0, 500, 375);
                         var canvas = document.getElementById('canvas')
-                        var snapshot = canvas.toDataURL();
+                        var snapshot = new Image();
+                        snapshot.src = canvas.toDataURL("temp/");
+                        return snapshot
 
                         // At this point we have the image, you just have to save it or do whatever you want with it.
                         // But it shouldn't be refreshing the page and it should be working like you wanted
