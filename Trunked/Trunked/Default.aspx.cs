@@ -19,10 +19,6 @@ namespace Trunked
         protected readonly string ERROR_TRAININGNOTNEEDED = "BadRequestTrainingNotNeeded";
         protected readonly string MESSAGE_TRAININGNOTNEEDED = "Nothing changed since last training";
 
-        protected string trainingKey = ConfigurationManager.AppSettings["CustomVisionTrainingKey"];
-        protected string predictionKey = ConfigurationManager.AppSettings["CustomVisionPredictionKey"];
-        protected Guid projectID = new Guid(ConfigurationManager.AppSettings["CustomVisionProjectID"]);
-
         protected GoogleBooksAPI googleBooksAPI = new GoogleBooksAPI();
         protected CustomVision customVision = new CustomVision();
         BookRecognizer bookRecognizer = new BookRecognizer();
@@ -80,12 +76,12 @@ namespace Trunked
 
                 try
                 {
-                    result = customVision.MakePrediction(path);
+                    result = customVision.GetClassification(path);
 
                     lblRecognizedAs.Text = "<br />Object recognized as: <strong>" + result.Name + "</strong>";
                     pnlRecognizedAs.Visible = true;
 
-                    if (result.Type == ResultType.Barcode)
+                    if (result.Classification == Classifiers.Barcode)
                     {
                         Barcode barcode = BarcodeDecoder.Decode(path);
 
@@ -98,7 +94,7 @@ namespace Trunked
                             else
                                 UpdateLabelText(lblStatus, "No similar books found. Please try again.");
 
-                            GetImageAndTrainModel("Barcode");
+                            GetImageAndTrainModel("Barcode", false);
                         }
                         else
                         {
@@ -106,38 +102,44 @@ namespace Trunked
                             UpdateLabelText(lblStatus, "Unable to decode barcode. Please try again.");
                         }
                     }
-                    else if (result.Type == ResultType.Other)
+                    else if (result.Classification == Classifiers.Book)
                     {
-                        if (result.Name.Equals("Book"))
+                        string imageText = bookRecognizer.ReadTextFromImage(path);
+
+                        if (!String.IsNullOrWhiteSpace(imageText))
                         {
-                            string imageText = bookRecognizer.ReadTextFromImage(path);
+                            List<Dictionary<string, string>> bookDetails = googleBooksAPI.GetBookDetailsFromText(imageText, ConfigurationManager.AppSettings["GoogleBooksAPIMaxResults"]);
 
-                            if (!String.IsNullOrWhiteSpace(imageText))
+                            if (bookDetails != null)
                             {
-                                List<Dictionary<string, string>> bookDetails = googleBooksAPI.GetBookDetailsFromText(imageText, ConfigurationManager.AppSettings["GoogleBooksAPIMaxResults"]);
+                                bookRecognizer.FormatBookResultsForSelection(bookDetails, tblResults);
 
-                                if (bookDetails != null)
-                                {
-                                    bookRecognizer.FormatBookResultsForSelection(bookDetails, tblResults);
-
-                                    btnBookNotFound.Visible = true;
-                                    lblNewLines.Visible = true;
-                                }
-                                else
-                                    UpdateLabelText(lblStatus, "Unable to recognize book cover. Please upload a different image or click the link above to add it manually");
+                                btnBookNotFound.Visible = true;
+                                lblNewLines.Visible = true;
                             }
                             else
-                                UpdateLabelText(lblStatus, "Unable to recognize book cover. Please try again.");
+                                UpdateLabelText(lblStatus, "Unable to recognize book cover. Please upload a different image or click the link above to add it manually");
                         }
-                        else
-                        {
-                            cllConfidence.Text = result.Probability;
-                            cllItemScanned.Text = result.Name;
+                    }
+                    else if (result.Classification == Classifiers.Clothing)
+                    {
+                        Result clothingResult = customVision.GetClothingPrediction(path);
 
-                            btnConfirm.Text = "Confirm: " + result.Name;
+                        cllConfidence.Text = clothingResult.Probability;
+                        cllItemScanned.Text = clothingResult.Name;
 
-                            tblObjectResults.Visible = true;
-                        }
+                        btnConfirm.Text = "Confirm: " + clothingResult.Name;
+
+                        tblObjectResults.Visible = true;
+                    }
+                    else if (result.Classification == Classifiers.Other)
+                    {
+                        cllConfidence.Text = result.Probability;
+                        cllItemScanned.Text = result.Name;
+
+                        btnConfirm.Text = "Confirm: " + result.Name;
+
+                        tblObjectResults.Visible = true;
                     }
                 }
                 catch (Microsoft.Rest.HttpOperationException ex)
@@ -248,7 +250,7 @@ namespace Trunked
 
                 lblConfirmation.Text = String.Format("<strong>ISBN:</strong> {0}<br /><strong>Title:</strong> {1}<br /><strong>Author(s):</strong> {2}<br /><strong>Publisher:</strong> {3}<br /><strong>Publish Date:</strong> {4}<br /><strong>Genre:</strong> {5}", isbn, title, authors, publisher, publishDate, genre);
 
-                GetImageAndTrainModel("Book");
+                GetImageAndTrainModel("Book", false);
             }
             else
                 UpdateLabelText(lblStatus, "An error occurred while trying to add the book.<br />" + res.ErrorMessage);
@@ -717,7 +719,7 @@ namespace Trunked
 
                         lblConfirmation.Text = String.Format("<strong>ISBN:</strong> {0}<br /><strong>Title:</strong> {1}<br /><strong>Author(s):</strong> {2}<br /><strong>Publisher:</strong> {3}<br /><strong>Publish Date:</strong> {4}<br /><strong>Genre:</strong> {5}", isbn, title, authors, publisher, publishDate, genre);
 
-                        GetImageAndTrainModel("Book");
+                        GetImageAndTrainModel("Book", false);
                     }
                     else
                         UpdateLabelText(lblStatus, "An error occurred while trying to add the book.<br />" + res.ErrorMessage);
@@ -754,7 +756,7 @@ namespace Trunked
 
                         lblConfirmation.Text = String.Format("<strong>Type:</strong> {0}<br /><strong>SubType:</strong> {1}<br /><strong>Brand:</strong> {2}<br /><strong>Size:</strong> {3}<br /><strong>Colour:</strong> {4}", type, subType, brand, size, colour);
 
-                        GetImageAndTrainModel(type);
+                        GetImageAndTrainModel(type, true);
                     }
                     else
                         UpdateLabelText(lblStatus, "An error occurred while trying to add the item of clothing.<br />" + res.ErrorMessage);
@@ -787,7 +789,7 @@ namespace Trunked
 
                         lblConfirmation.Text = String.Format("<strong>Title:</strong> {0}<br /><strong>Genre:</strong> {1}<br /><strong>Rating:</strong> {2}", title, genre, rating);
 
-                        GetImageAndTrainModel("DVD");
+                        GetImageAndTrainModel("DVD", false);
                     }
                     else
                         UpdateLabelText(lblStatus, "An error occurred while trying to add the DVD.<br />" + res.ErrorMessage);
@@ -820,7 +822,7 @@ namespace Trunked
 
                         lblConfirmation.Text = String.Format("<strong>Title:</strong> {0}<br /><strong>Musician:</strong> {1}<br /><strong>Genre:</strong> {2}", title, musician, genre);
 
-                        GetImageAndTrainModel(ddlItemType.SelectedValue);
+                        GetImageAndTrainModel(ddlItemType.SelectedValue, false);
                     }
                     else
                         UpdateLabelText(lblStatus, "An error occurred while trying to add the DVD.<br />" + res.ErrorMessage);
@@ -853,7 +855,7 @@ namespace Trunked
 
                         lblConfirmation.Text = String.Format("<strong>Type:</strong> {0}<br /><strong>Details:</strong> {1}<br /><strong>Description:</strong> {2}", type, details, description);
 
-                        GetImageAndTrainModel(type);
+                        GetImageAndTrainModel(type, false);
                     }
                 }
                 else
@@ -893,7 +895,7 @@ namespace Trunked
             return !String.IsNullOrEmpty(txtOtherItemType.Text) && !String.IsNullOrEmpty(txtOtherItemDescription.Text);
         }
 
-        public void GetImageAndTrainModel(string tag)
+        public void GetImageAndTrainModel(string tag, bool isClothing)
         {
             string path = Server.MapPath("~/temp/") + Session["ImageFileName"];
 
@@ -901,7 +903,10 @@ namespace Trunked
             {
                 try
                 {
-                    customVision.TrainModel(path, tag);
+                    if (isClothing)
+                        customVision.TrainClothingModel(path, tag);
+                    
+                    customVision.TrainClassifierModel(path, tag);
                 }
                 catch (Microsoft.Rest.HttpOperationException ex)
                 {
