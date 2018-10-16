@@ -25,7 +25,12 @@
                     video.play();
 
                     document.getElementById("snap").addEventListener("click", function () {
-                        context.drawImage(video, 0, 0, 500, 375);
+                        //context.drawImage(video, 0, 0, 500, 375);
+                        var canvas = document.getElementById('canvas')
+                        var snapshot = canvas.toDataURL();
+
+                        // At this point we have the image, you just have to save it or do whatever you want with it.
+                        // But it shouldn't be refreshing the page and it should be working like you wanted
                     });
                 })
                 .catch(error => {
@@ -36,7 +41,7 @@
 
 
     <video autoplay id="videoElement"></video>
-    <button id="snap">Snap Photo</button>
+    <input type="button" id="snap" value="Snap Photo" />
     <canvas id="canvas" width="500" height="375"></canvas>
 
     <div class="jumbotron">
