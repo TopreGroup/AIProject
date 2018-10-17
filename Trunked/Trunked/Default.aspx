@@ -9,6 +9,7 @@
             $('#<%= tblObjectResults.ClientID %>').css({ 'display': "none" });
             $('#<%= lblRecognizedAs.ClientID %>').css({ 'display': "none" });
             $('#<%= pnlRecognizedAs.ClientID %>').css({ 'display': "none" });
+            $('#<%= pnlImage.ClientID %>').css({ 'display': "none" });
         }
 
         function showSmallLoadingGif() {
@@ -17,6 +18,9 @@
 	</script>
     <div class="jumbotron">
         <h1>Trunked</h1>
+        <asp:Panel ID="pnlImage" runat="server" style="float:right; width:35%;" >
+            <asp:Image ID="imgUploadedImage" runat="server" style="width:175px; margin:auto; display:block;" />
+        </asp:Panel>
         <asp:Panel ID="pnlRecognition" runat="server" >
             <p class="lead">Choose your image below and then click <strong><i>Recognize</i></strong>.</p>
 		    <p><asp:FileUpload ID="ctrlFileUpload" runat="server" /></p>
