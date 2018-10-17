@@ -9,6 +9,7 @@ CREATE PROCEDURE [dbo].[usp_insert_clothing]
 	@ClothingType		VARCHAR(100), 
 	@ClothingSubType	VARCHAR(100), 
 	@ClothingBrand		VARCHAR(100), 
+	@ClothingGender		VARCHAR(10), 
 	@ClothingSize		VARCHAR(10), 
 	@ClothingColour		VARCHAR(100)
 )
@@ -16,23 +17,25 @@ AS
 BEGIN
 	INSERT INTO [dbo].[TrunkedInventory]
 	(
-		Tag, 
-		Details, 
-		ClothingType, 
-		ClothingSubType, 
-		ClothingBrand, 
-		ClothingSize, 
+		Tag,
+		Details,
+		ClothingType,
+		ClothingSubType,
+		ClothingBrand,
+		ClothingGender,
+		ClothingSize,
 		ClothingColour,
 		DateAdded
 	)
 	VALUES
 	(
-		@Tag, 
-		@Details, 
-		@ClothingType, 
-		@ClothingSubType, 
-		@ClothingBrand, 
-		@ClothingSize, 
+		@Tag,
+		@Details,
+		@ClothingType,
+		@ClothingSubType,
+		@ClothingBrand,
+		@ClothingGender,
+		@ClothingSize,
 		@ClothingColour,
 		GETUTCDATE()
 	)
