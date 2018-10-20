@@ -56,6 +56,8 @@ namespace Trunked
 
             if (result.Name.Equals("Barcode"))
                 result.Classification = Classifiers.Barcode;
+            else if (result.Name.Equals("Book"))
+                result.Classification = Classifiers.Book;
             else if (result.Name.Equals("Clothing"))
                 result.Classification = Classifiers.Clothing;
             else
