@@ -161,6 +161,15 @@
                             <span style="color:red;vertical-align: top;">*</span>
                         </asp:TableCell>
                     </asp:TableRow>
+                    <asp:TableRow ID="rowClothingGender" >
+                        <asp:TableCell Text="Gender:" CssClass="tblCell heading" />
+                        <asp:TableCell>
+                            <asp:RadioButtonList ID="rblClothingGender" runat="server" RepeatDirection="Horizontal" Width="150px">
+                                <asp:ListItem Text="Mens" Value="Mens" />
+                                <asp:ListItem Text="Womens" Value="Womens" />
+                            </asp:RadioButtonList>
+                        </asp:TableCell>
+                    </asp:TableRow>
                     <asp:TableRow ID="rowClothingSize" >
                         <asp:TableCell Text="Size:" CssClass="tblCell heading" />
                         <asp:TableCell>

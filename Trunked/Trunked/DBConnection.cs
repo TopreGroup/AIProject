@@ -71,6 +71,7 @@ namespace Trunked
                     command.Parameters.Add("@ClothingType", SqlDbType.VarChar).Value = parameters["Type"];
                     command.Parameters.Add("@ClothingSubType", SqlDbType.VarChar).Value = parameters["SubType"];
                     command.Parameters.Add("@ClothingBrand", SqlDbType.VarChar).Value = parameters["Brand"];
+                    command.Parameters.Add("@ClothingGender", SqlDbType.VarChar).Value = parameters["Gender"];
                     command.Parameters.Add("@ClothingSize", SqlDbType.VarChar).Value = parameters["Size"];
                     command.Parameters.Add("@ClothingColour", SqlDbType.VarChar).Value = parameters["Colour"];
 

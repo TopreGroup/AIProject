@@ -481,6 +481,24 @@ namespace Trunked {
         protected global::System.Web.UI.WebControls.TextBox txtOtherClothingSubType;
         
         /// <summary>
+        /// rowClothingGender control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableRow rowClothingGender;
+        
+        /// <summary>
+        /// rblClothingGender control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RadioButtonList rblClothingGender;
+        
+        /// <summary>
         /// rowClothingSize control.
         /// </summary>
         /// <remarks>

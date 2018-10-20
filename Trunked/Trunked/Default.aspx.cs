@@ -372,6 +372,7 @@ namespace Trunked
             rowBrand.Visible = false;
             rowClothingType.Visible = false;
             rowClothingSubType.Visible = false;
+            rowClothingGender.Visible = false;
             rowClothingSize.Visible = false;
             rowClothingColour.Visible = false;
             rowRating.Visible = false;
@@ -449,6 +450,7 @@ namespace Trunked
                 rowBrand.Visible = true;
                 rowClothingType.Visible = true;
                 rowClothingSubType.Visible = false;
+                rowClothingGender.Visible = true;
                 rowClothingSize.Visible = true;
                 rowClothingColour.Visible = true;
             }
@@ -737,6 +739,7 @@ namespace Trunked
                     string type = ddlClothingType.SelectedValue;
                     string subType = ddlClothingSubType.SelectedValue;
                     string brand = txtBrand.Text;
+                    string gender = rblClothingGender.SelectedValue;
                     string size = txtClothingSize.Text;
                     string colour = txtClothingColour.Text;
 
@@ -745,6 +748,7 @@ namespace Trunked
                         { "Type", type },
                         { "SubType", subType },
                         { "Brand", brand },
+                        { "Gender", gender },
                         { "Size", size },
                         { "Colour", colour }
                     };
@@ -757,7 +761,7 @@ namespace Trunked
                         pnlManual.Visible = false;
                         pnlConfirmation.Visible = true;
 
-                        lblConfirmation.Text = String.Format("<strong>Type:</strong> {0}<br /><strong>SubType:</strong> {1}<br /><strong>Brand:</strong> {2}<br /><strong>Size:</strong> {3}<br /><strong>Colour:</strong> {4}", type, subType, brand, size, colour);
+                        lblConfirmation.Text = String.Format("<strong>Type:</strong> {0}<br /><strong>SubType:</strong> {1}<br /><strong>Brand:</strong> {2}<br /><strong>Gender:</strong> {3}<br /><strong>Size:</strong> {4}<br /><strong>Colour:</strong> {5}", type, subType, brand, gender, size, colour);
 
                         GetImageAndTrainModel(type, true);
                     }
